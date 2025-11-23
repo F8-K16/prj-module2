@@ -1,0 +1,135 @@
+@import "tailwindcss";
+
+body {
+  @apply font-[Roboto] bg-linear-to-br from-[#05060d] via-[#0d1230] to-[#26114d] overflow-x-hidden;
+}
+
+/* Sidebar */
+.sidebar-item {
+  @apply flex gap-5 px-3 py-3 rounded-md 
+           text-base font-medium text-white/90
+           hover:bg-white/15 hover:text-white
+           transition-all cursor-pointer;
+}
+
+.sidebar-active {
+  @apply bg-white/20 text-white;
+}
+
+/* Buttons */
+.primary-btn {
+  @apply flex px-2 sm:px-4 py-2 rounded-full font-medium text-sm transition
+                   bg-white text-black hover:bg-gray-300 cursor-pointer;
+}
+
+.act-btn {
+  @apply flex p-3 text-sm text-white hover:cursor-pointer hover:bg-white/20 font-medium rounded-full transition;
+}
+
+#open-search {
+  @apply md:hidden;
+}
+
+#player-shuffle-btn.active,
+#player-repeat-btn.active,
+#player-shuffle-btn-mb.active,
+#player-repeat-btn-mb.active {
+  @apply text-[#00bcd4];
+}
+
+/* Scrollbar */
+@layer utilities {
+  .scrollbar::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .scrollbar::-webkit-scrollbar-track {
+    border-radius: 100vh;
+    background: #030304;
+  }
+
+  .scrollbar::-webkit-scrollbar-thumb {
+    background: gray;
+    border-radius: 100vh;
+    cursor: pointer;
+  }
+}
+
+/* Songs */
+.playing {
+  @apply bg-white/10 font-semibold;
+}
+
+/* Forms */
+.form-wrapper {
+  @apply relative w-full max-w-[400px] h-[450px];
+}
+
+.auth-form {
+  @apply absolute top-0 left-0 w-full transition duration-300;
+}
+
+.hidden-form {
+  @apply opacity-0 scale-95 pointer-events-none;
+}
+
+.active-form {
+  @apply opacity-100 scale-100 pointer-events-auto;
+}
+
+/* Toast */
+#toast-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  min-width: 240px;
+  padding: 12px 18px;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  animation: slideIn 0.3s ease, fadeOut 0.4s ease forwards;
+  animation-delay: 0s, 2.6s;
+  opacity: 0.95;
+}
+
+.toast-success {
+  background: #16a34a;
+}
+
+.toast-error {
+  background: #dc2626;
+}
+
+.toast-warning {
+  background: #f59e0b;
+  color: #000;
+}
+
+.toast-info {
+  background: #3b82f6;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateX(120%);
+  }
+}
