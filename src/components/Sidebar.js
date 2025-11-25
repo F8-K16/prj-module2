@@ -1,5 +1,4 @@
 export default function Sidebar() {
-  const user = JSON.parse(localStorage.getItem("user"));
   return `
     <div>
         <aside
@@ -44,9 +43,7 @@ export default function Sidebar() {
               </span>
             </a>
             <div id="sidebar-login">
-              ${
-                !user
-                  ? `
+              
                   <hr class="my-3 w-full border-white/20 " />
                   <a
                     href="/login"
@@ -59,9 +56,6 @@ export default function Sidebar() {
                         Đăng nhập
                     </span>
                   </a>
-                `
-                  : ""
-              }
             </div>
           </nav>
         </aside>
@@ -90,12 +84,7 @@ export default function Sidebar() {
             <a href="/explore" data-navigo class="sidebar-item"><i class="fa-solid fa-compass text-xl"></i><span>Khám phá</span></a>
             <a href="/library" data-navigo class="sidebar-item"><i class="fa-solid fa-bookmark text-xl"></i><span>Thư viện</span></a>
 
-            
-            <div id="slider-sidebar-login" class="px-2">
-            
-                ${
-                  !user
-                    ? `
+             <div id="slider-sidebar-login" class="px-2">
                 <hr class="border-white/20 my-2" />
                 <a href="/login" data-navigo class="block">
                   <button class="act-btn w-full mt-4 px-2 sm:px-4 flex justify-center bg-[#1d1d1d]">
@@ -104,11 +93,8 @@ export default function Sidebar() {
                 </a>
                 <p class="mt-2 text-[12px] text-[#909090] leading-6">
                   Đăng nhập để tạo và chia sẻ danh sách phát, nhận nội dung đề xuất dành riêng cho bạn.
-                </p>`
-                    : ""
-                }
+                </p>
             </div>
-
           </nav>
         </aside>
 

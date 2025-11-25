@@ -8,9 +8,13 @@ export default function CategoriesList(
   basePath = "/categories"
 ) {
   function CategoryItem(item) {
+    const url = item.path
+      ? `${item.path}/${item.slug}`
+      : `${basePath}/${item.slug}`;
+
     return `
       <a
-        href="${basePath}/${item.slug}"
+        href="${url}"
         data-navigo
         class="h-12 rounded-lg flex items-center text-white  text-sm font-semibold cursor-pointer bg-[#292929]"
       >

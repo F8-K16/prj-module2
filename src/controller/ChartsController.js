@@ -1,4 +1,4 @@
-import ExploreService from "../services/ExploreService";
+import AppService from "../services/AppService";
 import ArtistsList from "../components/ArtistsList";
 import VideosList from "../components/VideosList";
 
@@ -11,8 +11,8 @@ export async function ChartsController(defaultCountry = "GLOBAL") {
 
   async function updateCharts(country) {
     const [videos, artists] = await Promise.all([
-      ExploreService.getTopVideos(country),
-      ExploreService.getTopArtists(country),
+      AppService.Explore.getTopVideos(country),
+      AppService.Explore.getTopArtists(country),
     ]);
 
     chartsContent.innerHTML =

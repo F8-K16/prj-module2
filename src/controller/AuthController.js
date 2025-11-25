@@ -6,8 +6,7 @@ import {
   validateProfileForm,
   validateChangePasswordForm,
 } from "../utils/validation";
-import { loadNavbarUser } from "../utils/loadNavbarUser";
-import { loadSidebarUser } from "../utils/loadSidebarUser";
+import { UI } from "./UIController";
 import { Toast } from "../components/Toast";
 
 function saveAuthData(data) {
@@ -42,7 +41,7 @@ export async function registerHandle(e) {
   showFieldErrors([]);
 
   try {
-    const data = await AppService.register(payload);
+    const data = await AppService.Auth.register(payload);
     saveAuthData(data);
 
     Toast.success("Đăng ký thành công!");
@@ -83,15 +82,15 @@ export async function loginHandle(e) {
   showFieldErrors([]);
 
   try {
-    const data = await AppService.login(payload);
+    const data = await AppService.Auth.login(payload);
     saveAuthData(data);
-
-    await loadNavbarUser();
-    loadSidebarUser();
+    UI.loadNavbarUser();
+    UI.loadSidebarUser();
     router.navigate("/");
     Toast.success("Đăng nhập thành công!");
   } catch (error) {
-    Toast.error("Đăng nhập thất bại! Vui lòng thử lại.");
+    console.log(error);
+    Toast.error("Email hoặc mật khẩu không đúng! Vui lòng thử lại.");
   }
 }
 
@@ -103,15 +102,16 @@ export async function logoutHandle() {
   }
 
   try {
-    await AppService.logout(token);
+    await AppService.Auth.logout(token);
     localStorage.removeItem("token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");
-    await loadNavbarUser();
-    loadSidebarUser();
+    UI.loadNavbarUser();
+    UI.loadSidebarUser();
     router.navigate("/login");
     Toast.success("Đăng xuất thành công!");
   } catch (error) {
+    console.log(error);
     Toast.error("Đăng xuất thất bại! Vui lòng thử lại.");
   }
 }
@@ -136,7 +136,7 @@ export function updateProfileHandle() {
     showFieldErrors([]);
 
     try {
-      await AppService.updateProfile(data);
+      await AppService.Auth.updateProfile(data);
       router.navigate("/");
       Toast.success("Cập nhật thông tin thành công!");
     } catch (error) {
@@ -172,7 +172,7 @@ export function changePasswordHandle() {
     showFieldErrors([]);
 
     try {
-      await AppService.changePassword(data);
+      await AppService.Auth.changePassword(data);
       router.navigate("/");
       Toast.success("Đổi mật khẩu thành công!");
     } catch (error) {

@@ -1,62 +1,92 @@
 import { formatDuration } from "../utils/formatDuration";
-import { UI } from "./UIController";
 
 class PlayerController {
   constructor() {
     this.songs = [];
     this.currentIndex = 0;
     this.audio = new Audio();
+    this.audio.preload = "auto";
+
     this.isShuffle = false;
     this.isRepeat = false;
+    this.playPromise = null;
+    this.isLoading = false;
+
+    this.initialized = false;
+    this._trackClickReady = false;
+
+    this._onTimeUpdate = this._onTimeUpdate.bind(this);
 
     this.audio.onended = () => this.handleSongEnd();
   }
 
   setSongs(tracks) {
-    this.songs = tracks;
+    this.songs = Array.isArray(tracks) ? tracks : [];
+    this.setupListEvents();
   }
 
-  loadSong(song) {
+  async loadSong(song) {
     if (!song) return;
 
-    this.currentSong = song;
-    this.currentIndex = this.songs.findIndex((s) => s.id === song.id);
-    this.audio.src = song.audioUrl;
-    this.audio.load();
+    try {
+      if (this.playPromise) {
+        try {
+          this.audio.pause();
+        } catch {}
+        this.playPromise = null;
+      }
 
-    document.querySelector(
-      "#player-thumbnail"
-    ).style.backgroundImage = `url('${song.thumbnails?.[0]}')`;
+      this.currentSong = song;
+      this.currentIndex = this.songs.findIndex((s) => s.id === song.id);
 
-    document.querySelector("#player-title").textContent = song.title;
-    document.querySelector("#player-artist").textContent =
-      song.artists?.[0] || "Không rõ nghệ sĩ";
+      this.audio.src = song.audioUrl;
+      this.audio.load();
 
-    UI.highlightActiveSong(song.id);
-    this.updatePlayButton(false);
+      document.querySelector(
+        "#player-thumbnail"
+      ).style.backgroundImage = `url('${song.thumbnails?.[0]}')`;
 
-    return new Promise((resolve) => {
-      this.audio.addEventListener(
-        "loadedmetadata",
-        () => {
-          document.querySelector("#player-duration").textContent =
-            formatDuration(this.audio.duration);
-          resolve();
-        },
-        { once: true }
-      );
-    });
+      document.querySelector("#player-title").textContent = song.title;
+      document.querySelector("#player-artist").textContent =
+        song.artists?.[0] || "Không rõ nghệ sĩ";
+
+      this.highlightActiveSong(song.id);
+      this.updatePlayButton(false);
+
+      await new Promise((resolve) => {
+        this.audio.addEventListener(
+          "loadedmetadata",
+          () => {
+            document.querySelector("#player-duration").textContent =
+              formatDuration(this.audio.duration);
+            resolve();
+          },
+          { once: true }
+        );
+      });
+    } finally {
+      this.isLoading = false;
+    }
   }
 
   async playSong() {
+    if (this.isLoading) return;
     try {
-      await this.audio.play();
+      if (this.playPromise) {
+        try {
+          await this.playPromise;
+        } catch (error) {
+          console.warn("Không thể play:", error);
+        }
+      }
+
+      this.playPromise = this.audio.play();
+      await this.playPromise;
+
       this.updatePlayButton(true);
     } catch (error) {
-      console.warn(error);
+      console.warn("Lỗi phát nhạc:", error);
     }
-    this.audio.play();
-    this.updatePlayButton(true);
   }
 
   pauseSong() {
@@ -72,7 +102,6 @@ class PlayerController {
     if (!this.songs.length) return;
 
     this.currentIndex = (this.currentIndex + 1) % this.songs.length;
-
     await this.loadSong(this.songs[this.currentIndex]);
     this.playSong();
   }
@@ -82,7 +111,6 @@ class PlayerController {
 
     this.currentIndex =
       (this.currentIndex - 1 + this.songs.length) % this.songs.length;
-
     await this.loadSong(this.songs[this.currentIndex]);
     this.playSong();
   }
@@ -94,7 +122,6 @@ class PlayerController {
     do {
       random = Math.floor(Math.random() * this.songs.length);
     } while (random === this.currentIndex);
-
     this.currentIndex = random;
 
     await this.loadSong(this.songs[random]);
@@ -148,17 +175,21 @@ class PlayerController {
     this.audio.currentTime = (val / 100) * duration;
   }
 
-  initProgressBar() {
+  _onTimeUpdate() {
     const progress = document.querySelector("#player-progress-bar");
     const currentEl = document.querySelector("#player-current");
+    const duration = this.audio.duration;
 
-    this.audio.addEventListener("timeupdate", () => {
-      const duration = this.audio.duration;
-      if (!duration || isNaN(duration)) return;
+    if (!duration || isNaN(duration)) return;
 
-      progress.value = (this.audio.currentTime / duration) * 100;
+    if (progress) progress.value = (this.audio.currentTime / duration) * 100;
+    if (currentEl)
       currentEl.textContent = formatDuration(this.audio.currentTime);
-    });
+  }
+
+  initProgressBar() {
+    this.audio.removeEventListener("timeupdate", this._onTimeUpdate);
+    this.audio.addEventListener("timeupdate", this._onTimeUpdate);
   }
 
   updatePlayButton(isPlaying) {
@@ -221,19 +252,66 @@ class PlayerController {
     toggleMenu("#mobile-right-toggle", "#mobile-right-menu");
   }
 
-  initTrackClick() {
-    document.addEventListener("click", (e) => {
+  _updateInfoDetails(song) {
+    const infoBox = document.querySelector("#info-details-box");
+    if (!infoBox) return;
+
+    const thumbEl = document.querySelector("#song-thumb-display");
+    const titleEl = document.querySelector("#song-title-display");
+    const durationEl = document.querySelector("#song-duration-display");
+    const popularityEl = document.querySelector("#song-popularity-display");
+
+    thumbEl.src = song.thumbnails?.[0] || "";
+
+    titleEl.textContent = song.title || "Không có tiêu đề";
+
+    durationEl.textContent = song.duration
+      ? `Thời lượng: ${formatDuration(song.duration)}`
+      : "";
+
+    popularityEl.textContent = song.popularity
+      ? `${song.popularity} lượt nghe`
+      : "";
+  }
+
+  setupListEvents() {
+    if (this._trackClickReady) return;
+    this._trackClickReady = true;
+
+    document.addEventListener("click", async (e) => {
       const item = e.target.closest(".track-item");
       if (!item) return;
+
       const trackId = item.dataset.trackId;
-      const song = player.songs.find((s) => s.id === trackId);
-
+      const song = this.songs.find((s) => s.id === trackId);
       if (!song) return;
-      player.loadSong(song);
-      player.playSong();
 
+      await this.loadSong(song);
+      await this.playSong();
+
+      this._updateInfoDetails(song);
       document.querySelector("#player-wrapper").classList.remove("hidden");
+
+      this.highlightActiveSong(trackId);
     });
+  }
+
+  async playSongFromDetail(id) {
+    const song = this.songs.find((s) => s.id === id);
+    if (!song) return;
+
+    await this.loadSong(song);
+    await this.playSong();
+
+    document.querySelector("#player-wrapper").classList.remove("hidden");
+    this.highlightActiveSong(id);
+  }
+
+  highlightActiveSong(id) {
+    const prev = document.querySelector(".track-item.playing");
+    if (prev) prev.classList.remove("playing");
+    const el = document.querySelector(`.track-item[data-track-id="${id}"]`);
+    if (el) el.classList.add("playing");
   }
 
   addListener = (selector, event, handler) => {
@@ -247,7 +325,6 @@ class PlayerController {
     this.initialized = true;
 
     this.initProgressBar();
-    this.initTrackClick();
     this.addListener("#player-play-btn", "click", () => this.togglePlay());
     this.addListener("#player-next-btn", "click", () => this.nextSong());
     this.addListener("#player-prev-btn", "click", () => this.prevSong());

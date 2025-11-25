@@ -14,7 +14,7 @@ export default function CardList(
     >
       <div class="relative">
         <img 
-          src="${item.thumbnails ?? item.thumb}" 
+          src="${item.thumbnails || item.thumb}" 
           class="rounded-xl w-full h-40 lg:h-[220px] object-cover mb-2"
         />
 

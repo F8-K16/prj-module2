@@ -1,13 +1,7 @@
-import ExploreService from "../services/ExploreService";
 import VideoList from "../components/VideosList";
 import ArtistsList from "../components/ArtistsList";
 
-export default async function ChartsPage() {
-  const countries = await ExploreService.getCountries();
-
-  const topVideos = await ExploreService.getTopVideos("GLOBAL");
-  const topArtists = await ExploreService.getTopArtists("GLOBAL");
-
+export default async function ChartsPage(countries, topVideos, topArtists) {
   return `
     <div class="p-4 text-white">
       <h1 class="font-bold text-[45px] mb-10">Bảng xếp hạng</h1>

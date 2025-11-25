@@ -47,7 +47,15 @@ export default function QuickPicksList(
         <h3 class="text-white font-medium truncate">${
           item.title || item.name
         }</h3>
-        <p class="text-gray-400 truncate">${subtitle}</p>
+       <div class="flex items-center text-gray-400 truncate">
+          <span>${subtitle}</span> 
+          ${
+            item.popularity
+              ? `<span class="mx-2">•</span> 
+                 <span>${formatViews(item.popularity)} lượt nghe</span>`
+              : ``
+          }
+       </div>
       </div>
     </a>
     `;
@@ -55,7 +63,7 @@ export default function QuickPicksList(
 
   function ListColumn(items) {
     return `
-      <div class="flex flex-col gap-3 shrink-0 min-w-[33%] -mb-6">
+      <div class="flex flex-col gap-3 shrink-0 min-w-[calc(33%-16px)] -mb-6 ">
         ${items.map(ListItem).join("")}
       </div>
     `;

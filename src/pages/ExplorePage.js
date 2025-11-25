@@ -1,15 +1,8 @@
-import ExploreService from "../services/ExploreService";
 import CardList from "../components/CardList";
 import CategoriesList from "../components/CategoriesList";
 import VideosList from "../components/VideosList";
 
-export default async function ExplorePage() {
-  const [albums, moodsGenres, videos] = await Promise.all([
-    ExploreService.getAlbums(),
-    ExploreService.getMoodsGenres(),
-    ExploreService.getVideos(),
-  ]);
-
+export default async function ExplorePage(albums, moodsGenres, videos) {
   return `
       <div class="p-4 text-white">
         <section class="flex flex-col md:flex-row gap-4">

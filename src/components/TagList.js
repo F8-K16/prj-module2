@@ -1,4 +1,5 @@
 import HScroll from "./HScroll";
+import Section from "./Section";
 
 export default function TagList(tags, activeSlug = "") {
   const tagItem = (tag) => `
@@ -18,5 +19,5 @@ export default function TagList(tags, activeSlug = "") {
   `;
 
   const html = tags.map(tagItem).join("");
-  return HScroll(html);
+  return Section("", HScroll(html));
 }

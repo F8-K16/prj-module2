@@ -1,10 +1,6 @@
 import CategoriesList from "../components/CategoriesList";
-import ExploreService from "../services/ExploreService";
 
-export default async function MoodsGenresPage() {
-  const categories = await ExploreService.getCategories();
-  const lineSongs = await ExploreService.getLineSongs();
-
+export default async function MoodsGenresPage(categories, lineSongs) {
   if (!categories.length)
     return "<p class='text-white p-4'>Không có dữ liệu</p>";
 

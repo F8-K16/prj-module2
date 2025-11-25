@@ -4,21 +4,19 @@ export const Toast = {
     if (!container) return;
 
     const bg = {
-      success: "bg-green-600",
-      error: "bg-red-600",
-      warning: "bg-yellow-400 text-black",
-      info: "bg-blue-600",
+      success: "toast-success",
+      error: "toast-error",
+      warning: "toast-warning",
+      info: "toast-info",
     }[type];
 
     const toast = document.createElement("div");
-    toast.className = `px-2 py-3 min-w-[200px] rounded-lg text-white text-sm shadow-lg flex justify-center animate-slideIn animate-fadeOut
-      ${bg}
-    `;
-    toast.innerText = message;
+    toast.className = `toast ${bg}`;
+    toast.textContent = message;
 
     container.appendChild(toast);
 
-    setTimeout(() => toast.remove(), 3000);
+    setTimeout(() => toast.remove(), 3200);
   },
 
   success(msg) {

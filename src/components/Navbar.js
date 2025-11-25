@@ -1,5 +1,4 @@
 export default function Navbar() {
-  const user = JSON.parse(localStorage.getItem("user"));
   return `
     <nav class="fixed top-0 left-0 right-0 z-50 w-full bg-[#030303]/90">
       <div class="text-white flex items-center justify-between px-2 h-18 sm:px-4">
@@ -18,10 +17,14 @@ export default function Navbar() {
         <div class="hidden md:flex items-center bg-[#292929]/80 backdrop-blur-sm px-4 py-1.5 lg:py-2.5 rounded w-[290px] lg:w-[470px]">
           <i class="fa-solid fa-magnifying-glass w-5 h-5 text-gray-300"></i>
           <input
+            id="navbar-search-input"
             placeholder="Tìm bài hát, nghệ sĩ"
             class="bg-transparent outline-none px-3 w-full text-md text-white placeholder-gray-400"
           />
+          <div id="search-dropdown" class="absolute left-0 right-0 top-full bg-[#121212] text-white rounded-lg shadow-lg mt-1 hidden z-9999"></div>
         </div>
+        
+
       
         <div class="flex items-center gap-1 sm:gap-3 lg:gap-5 lg:mr-10">
           <button id="open-search" class="act-btn">
@@ -36,29 +39,7 @@ export default function Navbar() {
             <i class="fa-solid fa-ellipsis-vertical text-xl"></i>
           </button>
 
-           <div id="navbar-user">
-              ${
-                user
-                  ? `
-                  <div class="relative group select-none">
-                    <div class="w-9 h-9 flex items-center justify-center bg-white/20 rounded-full text-white font-semibold cursor-pointer">
-                      ${user.name.charAt(0).toUpperCase()}
-                    </div>
-
-                    <div class="absolute -right-1/2 w-48 bg-[#1a1a1a] text-white opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-100">
-                      <a href="/auth/profile" data-navigo class="block px-4 py-2 hover:bg-white/10">Thông tin người dùng</a>
-                      <a href="/auth/change-password" data-navigo class="block px-4 py-2 hover:bg-white/10">Đổi mật khẩu</a>
-                      <a href="/auth/logout" data-navigo class="block px-4 py-2 hover:bg-white/10">Đăng xuất</a>
-                    </div>
-                  </div>
-                `
-                  : `
-                  <a href="/login" data-navigo>
-                    <button class="primary-btn">Đăng nhập</button>
-                  </a>
-                `
-              }
-            </div>
+           <div id="navbar-user"></div>
         </div>
       </div>
 

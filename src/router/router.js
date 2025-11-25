@@ -1,118 +1,192 @@
 import Navigo from "navigo";
+import AppService from "../services/AppService";
+import { ChartsController } from "../controller/ChartsController";
+
 import HomePage from "../pages/HomePage";
 import ExplorePage from "../pages/ExplorePage";
 import LibraryPage from "../pages/LibraryPage";
 import LoginPage from "../pages/LoginPage";
 import NewReleasePage from "../pages/NewReleasePage";
 import ChartsPage from "../pages/ChartsPage";
-import { UI } from "../controller/UIController";
-import { ChartsController } from "../controller/ChartsController";
 import MoodsGenresPage from "../pages/MoodsGenresPage";
 import MoodDetailPage from "../pages/MoodDetailPage";
 import CategoryDetailPage from "../pages/CategoryDetailPage";
-
-import ExploreService from "../services/ExploreService";
-import AppService from "../services/AppService";
 import LineSongsDetailPage from "../pages/LineSongsDetailPage";
 import AlbumPlaylistPage from "../pages/AlbumPlaylistPage";
 import SongDetailPage from "../pages/SongDetailPage";
+import VideoDetailPage from "../pages/VideoDetailPage";
 import ProfilePage from "../pages/ProfilePage";
+import ChangePasswordPage from "../pages/ChangePasswordPage";
+
+import { UI } from "../controller/UIController";
 import { player } from "../controller/PlayerController";
+import { playerVideo } from "../controller/VideoPlayerController";
 import {
   changePasswordHandle,
   logoutHandle,
   updateProfileHandle,
 } from "../controller/AuthController";
-import ChangePasswordPage from "../pages/ChangePasswordPage";
-import HomeService from "../services/HomeService";
 
-const router = new Navigo("/", { hash: false, noMatchWarning: true });
+import { RecordPlayEvent } from "../utils/RecordPlayEvent";
+import { loading } from "../utils/loading";
 
-async function render(page) {
-  document.querySelector("#main-view").innerHTML = await page();
-  UI.setActiveSidebar();
+const router = new Navigo("/");
+
+async function render(page, controller) {
+  try {
+    loading.show();
+    const main = document.querySelector("#main-view");
+    const html = await page();
+    main.innerHTML = html;
+    if (controller) controller();
+    UI.setActiveSidebar();
+  } finally {
+    loading.hide();
+  }
 }
+// -------------------------------------------------------------------------
 
 router.on({
-  "/": async () => await render(HomePage),
+  "/": async () => {
+    const token = localStorage.getItem("token");
+    const [
+      quickPick,
+      moods,
+      albums,
+      todaysHits,
+      playLists,
+      user,
+      personalized,
+    ] = await Promise.all([
+      AppService.Home.getQuickPicks(),
+      AppService.Home.getMoods(),
+      AppService.Home.getAlbumsForYou(),
+      AppService.Home.getTodaysHits(),
+      AppService.Home.getPlaylistsByCountry("VN"),
+      token ? AppService.Auth.getProfile(token) : null,
+      token ? AppService.Home.getPersonalized(token) : [],
+    ]);
+    await render(() =>
+      HomePage(
+        quickPick,
+        moods,
+        albums,
+        todaysHits,
+        playLists,
+        user,
+        personalized
+      )
+    );
+  },
+
   "/explore": async () => {
+    loading.show();
     const [albums, moodsGenres, videos] = await Promise.all([
-      ExploreService.getAlbums(),
-      ExploreService.getMoodsGenres(),
-      ExploreService.getVideos(),
+      AppService.Explore.getAlbums(),
+      AppService.Explore.getMoodsGenres(),
+      AppService.Explore.getVideos(),
     ]);
 
-    return render(() => ExplorePage(albums, moodsGenres, videos));
+    await render(() => ExplorePage(albums, moodsGenres, videos));
   },
-  "/library": async () => await render(LibraryPage),
+
+  "/library": () => render(LibraryPage),
+
   "/login": async () => {
     await render(LoginPage);
     UI.initLoginForm();
   },
+
   "/new-releases": async () => {
     const [releases, videos] = await Promise.all([
-      ExploreService.getNewReleases(),
-      ExploreService.getVideos(),
-    ]);
-    return render(() => NewReleasePage(releases, videos));
-  },
-  "/charts": async () => {
-    document.querySelector("#main-view").innerHTML = await ChartsPage();
-    ChartsController();
-  },
-  "/moods/:slug": async ({ data }) => {
-    const moodDetails = await HomeService.getMoodDetails(data.slug);
-    return render(() => MoodDetailPage(moodDetails, data));
-  },
-  "/moods-and-genres": async () => await render(MoodsGenresPage),
-  "/categories/:slug": async ({ data }) => {
-    const categories = await ExploreService.getCategoryBySlug(data.slug);
-    return render(() => CategoryDetailPage(categories));
-  },
-  "/lines/:slug": async ({ data }) => {
-    const [songs, playlists, videos, albums] = await Promise.all([
-      ExploreService.getLineSongBySlug(data.slug),
-      ExploreService.getLinePlaylistBySlug(data.slug),
-      ExploreService.getLineVideoBySlug(data.slug),
-      ExploreService.getLineAlbumBySlug(data.slug),
+      AppService.Explore.getNewReleases(),
+      AppService.Explore.getVideos(),
     ]);
 
-    return render(() => LineSongsDetailPage(songs, playlists, videos, albums));
+    await render(() => NewReleasePage(releases, videos));
   },
+
+  "/charts": async () => {
+    const [countries, topVideos, topArtists] = await Promise.all([
+      AppService.Explore.getCountries(),
+      AppService.Explore.getTopVideos("GLOBAL"),
+      AppService.Explore.getTopArtists("GLOBAL"),
+    ]);
+    await render(
+      () => ChartsPage(countries, topVideos, topArtists),
+      ChartsController
+    );
+  },
+
+  "/moods/:slug": async ({ data }) => {
+    const moodDetails = await AppService.Home.getMoodDetails(data.slug);
+    await render(() => MoodDetailPage(moodDetails, data));
+  },
+
+  "/moods-and-genres": async () => {
+    const [categories, lineSongs] = await Promise.all([
+      AppService.Categories.getAll(),
+      AppService.Lines.getAll(),
+    ]);
+
+    render(() => MoodsGenresPage(categories, lineSongs));
+  },
+
+  "/categories/:slug": async ({ data }) => {
+    const categories = await AppService.Categories.getCategory(data.slug);
+    await render(() => CategoryDetailPage(categories));
+  },
+
+  "/lines/:slug": async ({ data }) => {
+    const [songs, playlists, videos, albums] = await Promise.all([
+      AppService.Lines.getLineSongs(data.slug),
+      AppService.Lines.getLinePlaylists(data.slug),
+      AppService.Lines.getLineVideos(data.slug),
+      AppService.Lines.getLineAlbums(data.slug),
+    ]);
+
+    await render(() => LineSongsDetailPage(songs, playlists, videos, albums));
+  },
+
   "/playlists/details/:slug": async ({ data }) => {
-    const playlistDetails = await AppService.getPlaylistDetails(data.slug);
-    return render(() => AlbumPlaylistPage(playlistDetails));
+    const playlistDetails = await AppService.Details.getPlaylist(data.slug);
+    RecordPlayEvent("playlist", playlistDetails.id);
+    await render(() => AlbumPlaylistPage(playlistDetails));
   },
+
   "/albums/details/:slug": async ({ data }) => {
-    const albumDetails = await AppService.getAlbumDetails(data.slug);
-    return render(() => AlbumPlaylistPage(albumDetails));
+    const albums = await AppService.Details.getAlbum(data.slug);
+
+    RecordPlayEvent("album", albums.id);
+    await render(() => AlbumPlaylistPage(albums));
   },
+
   "/songs/details/:id": async ({ data }) => {
-    const songDetails = await AppService.geSongDetails(data.id);
+    loading.show();
+    const songDetails = await AppService.Details.getSong(data.id);
+    RecordPlayEvent("song", data.id);
     await render(() => SongDetailPage(songDetails, data));
-    const songToPlay = player.songs.find((s) => s.id === data.id);
-    if (songToPlay) {
-      player.loadSong(songToPlay);
-      player.playSong();
-      document.querySelector("#player-wrapper").classList.remove("hidden");
-      UI.highlightActiveSong(data.id);
-    }
+    await player.playSongFromDetail(data.id);
+    loading.hide();
   },
+
   "/videos/details/:id": async ({ data }) => {
-    const videoDetails = await AppService.geVideoDetails(data.id);
-    await render(() => SongDetailPage(videoDetails, data));
+    loading.show();
+    const videoDetails = await AppService.Details.getVideo(data.id);
+    await render(() => VideoDetailPage(videoDetails, data));
+    playerVideo.playVideoFromDetail(data.id);
+    loading.hide();
   },
-  "/auth/logout": async () => {
-    await logoutHandle();
-  },
+
+  "/auth/logout": async () => await logoutHandle(),
+
   "/auth/profile": async () => {
-    const user = await AppService.getProfile();
-    await render(() => ProfilePage(user));
-    updateProfileHandle();
+    const user = await AppService.Auth.getProfile();
+    await render(() => ProfilePage(user), updateProfileHandle);
   },
+
   "/auth/change-password": async () => {
-    await render(ChangePasswordPage);
-    changePasswordHandle();
+    await render(ChangePasswordPage, changePasswordHandle);
   },
 });
 

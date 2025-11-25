@@ -6,9 +6,16 @@ class UIController {
     this.overlay = null;
     this.searchModal = null;
     this.searchBox = null;
+
+    this.initialized = false;
+    this._sidebarListenerRegistered = false;
+    this._searchListenerRegistered = false;
   }
 
   initSidebar() {
+    if (this._sidebarListenerRegistered) return;
+    this._sidebarListenerRegistered = true;
+
     this.sidebar = document.querySelector("#sidebar");
     this.overlay = document.querySelector("#sidebar-overlay");
 
@@ -17,12 +24,25 @@ class UIController {
 
     if (!this.sidebar || !this.overlay) return;
 
-    openBtn?.addEventListener("click", () => this.openSidebar());
-    closeBtn?.addEventListener("click", () => this.closeSidebar());
-    this.overlay?.addEventListener("click", () => this.closeSidebar());
+    openBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.openSidebar();
+    });
+    closeBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.closeSidebar();
+    });
+    this.overlay.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.closeSidebar();
+    });
 
-    document.querySelectorAll("a[data-navigo]").forEach((link) => {
-      link.addEventListener("click", () => this.closeSidebar());
+    document.addEventListener("click", (e) => {
+      const link = e.target.closest("a[data-navigo]");
+      if (!link) return;
+      if (this.sidebar && this.sidebar.contains(link)) {
+        this.closeSidebar();
+      }
     });
   }
 
@@ -37,6 +57,8 @@ class UIController {
   }
 
   initNavbarSearch() {
+    if (this._searchListenerRegistered) return;
+    this._searchListenerRegistered = true;
     const openBtn = document.querySelector("#open-search");
     const closeBtn = document.querySelector("#close-search");
 
@@ -55,10 +77,14 @@ class UIController {
       this.closeSearch();
     });
 
-    document.addEventListener("click", (e) => {
-      if (this.searchModal.contains(e.target)) return;
-      this.closeSearch();
-    });
+    document.addEventListener("click", (e) => this._handleSearchOutside(e));
+  }
+
+  _handleSearchOutside(e) {
+    if (!this.searchModal || this.searchModal.classList.contains("opacity-0"))
+      return;
+    if (this.searchModal.contains(e.target)) return;
+    this.closeSearch();
   }
 
   openSearch() {
@@ -87,16 +113,6 @@ class UIController {
     });
   }
 
-  highlightActiveSong(id) {
-    document.querySelectorAll(".track-item").forEach((row) => {
-      if (row.dataset.trackId === String(id)) {
-        row.classList.add("playing");
-      } else {
-        row.classList.remove("playing");
-      }
-    });
-  }
-
   initLoginForm() {
     const loginForm = document.querySelector("#login-form");
     const registerForm = document.querySelector("#register-form");
@@ -109,13 +125,9 @@ class UIController {
 
     if (show === "login") {
       loginForm.classList.replace("hidden-form", "active-form");
-    }
-    // Hiển thị register nếu ?show=register
-    else if (show === "register") {
+    } else if (show === "register") {
       registerForm.classList.replace("hidden-form", "active-form");
-    }
-    // Mặc định login
-    else {
+    } else {
       loginForm.classList.replace("hidden-form", "active-form");
     }
 
@@ -150,9 +162,63 @@ class UIController {
     }
   }
 
+  loadNavbarUser() {
+    const navbarEl = document.querySelector("#navbar-user");
+    if (!navbarEl) return;
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navbarEl.innerHTML = `
+      <a href="/login" data-navigo>
+        <button class="primary-btn">Đăng nhập</button>
+      </a>
+    `;
+      return;
+    }
+
+    const user = JSON.parse(localStorage.getItem("user"));
+    const name = user.name || "U";
+    const letter = name.charAt(0).toUpperCase();
+
+    navbarEl.innerHTML = `
+      <div class="relative group select-none">
+        <div class="w-9 h-9 flex items-center justify-center bg-white/20 rounded-full text-white font-semibold cursor-pointer">
+          ${letter}
+        </div>
+
+        <!-- Dropdown -->
+        <div 
+          class="absolute -right-1/2 w-48 bg-[#1a1a1a] text-white opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-100"
+        >
+          <a href="/auth/profile" 
+             data-navigo 
+             class="block px-4 py-2 hover:bg-white/10 transition">
+             Thông tin người dùng
+          </a>
+          <a href="/auth/change-password" 
+             data-navigo 
+             class="block px-4 py-2 hover:bg-white/10 transition">
+             Đổi mật khẩu
+          </a>
+          <a href="/auth/logout" 
+             data-navigo 
+             class="block px-4 py-2 hover:bg-white/10 transition">
+             Đăng xuất
+          </a>
+        </div>
+      </div>
+    `;
+  }
+
   async init() {
+    if (this.initialized) return;
+    this.initialized = true;
+
     this.initSidebar();
     this.initNavbarSearch();
+    this.loadSidebarUser();
+    this.loadNavbarUser();
   }
 }
 

@@ -1,13 +1,13 @@
 import "./assets/main.css";
-import { App } from "./app";
+import App from "./app";
 import router from "./router/router";
 import { UI } from "./controller/UIController";
 import { player } from "./controller/PlayerController";
+import { search } from "./controller/SearchController";
 
-document.addEventListener("DOMContentLoaded", async () => {
-  document.querySelector("#app").innerHTML = await App();
+document.querySelector("#app").innerHTML = await App();
 
-  player.init();
-  UI.init();
-  router.resolve();
-});
+player.init();
+UI.init();
+search.init();
+router.resolve();

@@ -1,12 +1,12 @@
 import CardList from "../components/CardList";
 import TagList from "../components/TagList";
-import HomeService from "../services/HomeService";
+import AppService from "../services/AppService";
 
 export default async function MoodDetailPage(m, params) {
   const slug = params.slug;
   const info = m.hero;
 
-  const moods = await HomeService.getMoods();
+  const moods = await AppService.Home.getMoods();
 
   return `
         <div class="p-4 text-white">
