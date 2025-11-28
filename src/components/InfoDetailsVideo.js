@@ -4,7 +4,7 @@ export default function VideoInfoDetails(data) {
   return `
     <div class="sticky top-24 text-white flex flex-col gap-5 items-center">
 
-      <div class="w-full aspect-video rounded-xl overflow-hidden">
+      <div class="w-full h-[70vh] aspect-video rounded-xl overflow-hidden">
         <iframe 
           id="video-iframe-display"
           class="w-full h-full"

@@ -3,11 +3,11 @@ import TrackList from "../components/Tracklist";
 
 export default function AlbumPlaylistPage(data) {
   return `
-    <div class="grid grid-cols-1 md:grid-cols-2 text-white px-4 gap-y-12">
-      <div class="md:col-span-1">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-y-12 md:px-8 lg:px-0 gap-x-4">
+      <div class="lg:col-span-1">
         ${InfoDetails(data)}
       </div>
-      <div class="md:col-span-1">
+      <div class="lg:col-span-1">
         ${TrackList(data.tracks)}
       </div>
     </div>

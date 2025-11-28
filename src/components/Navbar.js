@@ -7,7 +7,7 @@ export default function Navbar() {
           <i class="fa-solid fa-bars text-xl"></i>
         </button>
         
-        <a href="/" class="flex items-center gap-1 ">
+        <a href="/" data-navigo class="flex items-center gap-1 ">
           <img src="/images/logo.png" alt="Logo" class="w-8 h-8 object-contain"/>
           <span class="text-xl font-semibold tracking-tight">Music</span>
         </a>
@@ -26,16 +26,16 @@ export default function Navbar() {
         
 
       
-        <div class="flex items-center gap-1 sm:gap-3 lg:gap-5 lg:mr-10">
+        <div class="flex items-center gap-3 lg:gap-5 lg:mr-10">
           <button id="open-search" class="act-btn">
             <i class="fa-solid fa-magnifying-glass text-xl text-gray-300"></i>
           </button>
 
-          <button class="act-btn">
+          <button class="hidden sm:flex p-3 text-sm text-white hover:cursor-pointer hover:bg-white/20 font-medium rounded-full transition">
             <i class="fa-brands fa-chromecast text-2xl text-gray-300"></i>
           </button>
 
-          <button class="act-btn">
+          <button class="hidden sm:flex p-3 text-sm text-white hover:cursor-pointer hover:bg-white/20 font-medium rounded-full transition">
             <i class="fa-solid fa-ellipsis-vertical text-xl"></i>
           </button>
 
@@ -44,19 +44,20 @@ export default function Navbar() {
       </div>
 
       <!-- SEARCH MODAL -->
-      <div id="search-modal" class="absolute left-0 top-0 right-0 bg-black/90 px-4 py-3 opacity-0 pointer-events-none transition-all duration-300 ease-out md:hidden">
+      <div id="mobile-search-modal" class="absolute left-0 top-0 right-0 bg-black/90 px-4 py-3 opacity-0 pointer-events-none transition-all duration-300 ease-out md:hidden">
         <div id="search-box" class="flex items-center gap-3 bg-white/20 backdrop-blur-sm px-3 rounded-sm w-full translate-y-3 opacity-0 transition-all duration-300">
-          <button id="close-search" class="act-btn">
+          <button id="mobile-close-search" class="act-btn">
             <i class="fa-solid fa-arrow-left text-white text-xl"></i>
           </button>
             <input
-              id="search-input"
+              id="mobile-search-input"
               placeholder="Tìm bài hát, nghệ sĩ"
               class="bg-transparent outline-none w-full text-sm text-white placeholder-gray-400"
               autofocus
               autocomplete="off"
             />
         </div>
+        <div id="search-modal-results" class="mt-3"></div>
       </div>
       </div>
     </nav>

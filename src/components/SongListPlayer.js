@@ -8,8 +8,8 @@ export default function SongListPlayer(tracks = []) {
           (t, index) => `
           <div data-track-id=${
             t.id
-          } class="track-item flex items-center gap-4 p-2 rounded-lg text-white hover:bg-white/10 cursor-pointer transition group">
-            <div class=" w-6 text-right">${index + 1}</div>
+          } class="track-item flex items-center gap-4 p-3 rounded-lg text-white hover:bg-white/10 cursor-pointer transition group">
+            <div class="w-6 text-center">${index + 1}</div>
 
             <div class="relative">
                <img src="${

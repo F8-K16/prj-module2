@@ -7,11 +7,11 @@ export default function VideoListPlayer(videos = []) {
       ${videos
         .map(
           (v, index) => `
-          <div class="video-item flex items-center gap-4 p-2 rounded-lg text-white hover:bg-white/10 cursor-pointer transition group"
+          <div class="video-item flex items-center gap-4 p-3 rounded-lg text-white hover:bg-white/10 cursor-pointer transition group"
                data-video-id="${v.id}"
                data-youtube-id="${v.videoId}">
 
-            <div class="w-6 text-right">${index + 1}</div>
+            <div class="w-6 text-center">${index + 1}</div>
 
             <div class="relative">
               <img src="${v.thumbnails[0]}" 

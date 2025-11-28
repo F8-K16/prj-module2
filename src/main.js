@@ -5,9 +5,12 @@ import { UI } from "./controller/UIController";
 import { player } from "./controller/PlayerController";
 import { search } from "./controller/SearchController";
 
-document.querySelector("#app").innerHTML = await App();
+if (!window.__APP_INITIALIZED__) {
+  document.querySelector("#app").innerHTML = await App();
+  player.init();
+  UI.init();
+  search.init();
+  window.__APP_INITIALIZED__ = true;
+}
 
-player.init();
-UI.init();
-search.init();
 router.resolve();

@@ -6,9 +6,9 @@ export default function TrackList(tracks = []) {
       ${tracks
         .map(
           (t, index) => `
-          <a href="/songs/details/${t.id}" 
-          } class="flex items-center gap-4 py-3 px-4 text-white hover:bg-white/10 cursor-pointer transition group">
-            <div class=" w-6 text-right">${index + 1}</div>
+          <a href="/songs/details/${t.id}" data-navigo
+           class="flex items-center gap-4 py-3 px-4 text-white hover:bg-white/10 cursor-pointer transition group">
+            <div class="w-6 text-center">${index + 1}</div>
 
             <div class="relative">
                <img src="${

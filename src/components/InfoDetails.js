@@ -29,7 +29,7 @@ export default function InfoDetails(data) {
   return `
     <div class="sticky top-24 text-white flex flex-col gap-5 items-center">
 
-      <img id="song-thumb-display" src="${cover}" class="rounded-xl w-full max-h-[500px] object-contain" />
+      <img id="song-thumb-display" src="${cover}" class="w-80 h-80 lg:w-100 lg:h-100 rounded-xl object-cover shadow-lg" />
 
       <h1 id="song-title-display" class="text-[20px] xl:text-[28px] font-bold text-center">${title}</h1>
 

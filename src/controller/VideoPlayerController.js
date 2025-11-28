@@ -62,6 +62,7 @@ class PlayerVideoController {
   playVideoFromDetail(id) {
     const video = this.videos.find((v) => v.id === id);
     if (!video) return;
+
     this.play(video);
 
     this.highlightActiveVideo(id);

@@ -8,6 +8,7 @@ import {
 } from "../utils/validation";
 import { UI } from "./UIController";
 import { Toast } from "../components/Toast";
+import { loading } from "../utils/loading";
 
 function saveAuthData(data) {
   if (data.access_token) {
@@ -82,15 +83,18 @@ export async function loginHandle(e) {
   showFieldErrors([]);
 
   try {
+    loading.show();
     const data = await AppService.Auth.login(payload);
     saveAuthData(data);
     UI.loadNavbarUser();
     UI.loadSidebarUser();
+    Toast.success("Đăng nhập thành công! Vui lòng đợi trong giây lát!");
     router.navigate("/");
-    Toast.success("Đăng nhập thành công!");
   } catch (error) {
     console.log(error);
     Toast.error("Email hoặc mật khẩu không đúng! Vui lòng thử lại.");
+  } finally {
+    loading.hide();
   }
 }
 
@@ -102,6 +106,7 @@ export async function logoutHandle() {
   }
 
   try {
+    loading.show();
     await AppService.Auth.logout(token);
     localStorage.removeItem("token");
     localStorage.removeItem("refresh_token");
@@ -113,6 +118,8 @@ export async function logoutHandle() {
   } catch (error) {
     console.log(error);
     Toast.error("Đăng xuất thất bại! Vui lòng thử lại.");
+  } finally {
+    loading.hide();
   }
 }
 
@@ -136,6 +143,7 @@ export function updateProfileHandle() {
     showFieldErrors([]);
 
     try {
+      loading.show();
       await AppService.Auth.updateProfile(data);
       router.navigate("/");
       Toast.success("Cập nhật thông tin thành công!");
@@ -147,6 +155,8 @@ export function updateProfileHandle() {
         return;
       }
       Toast.error("Cập nhật thông tin thất bại! Vui lòng thử lại.");
+    } finally {
+      loading.hide();
     }
   });
 }
@@ -172,6 +182,7 @@ export function changePasswordHandle() {
     showFieldErrors([]);
 
     try {
+      loading.show();
       await AppService.Auth.changePassword(data);
       router.navigate("/");
       Toast.success("Đổi mật khẩu thành công!");
@@ -188,6 +199,8 @@ export function changePasswordHandle() {
         return;
       }
       Toast.error("Đổi mật khẩu thất bại! Vui lòng thử lại.");
+    } finally {
+      loading.hide();
     }
   });
 }

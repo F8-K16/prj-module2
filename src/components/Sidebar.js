@@ -3,7 +3,7 @@ export default function Sidebar() {
     <div>
         <aside
           id="desktop-sidebar"
-          class="pt-8 hidden md:flex flex-col w-22 h-full bg-[#030303] backdrop-blur-xl
+          class="pt-8 hidden lg:flex flex-col w-22 h-full bg-[#030303] backdrop-blur-xl
                 text-white fixed top-16 left-0 z-20"
         >
           <nav class="flex flex-col items-center">
@@ -13,8 +13,8 @@ export default function Sidebar() {
               class="flex flex-col items-center justify-center gap-1 p-3
                     hover:bg-white/10 rounded-xl transition group"
             >
-              <i class="fa-solid fa-house text-2xl"></i>
-              <span class="text-[10px] text-gray-300 group-hover:text-white">
+              <i class="fa-regular fa-house text-2xl"></i>
+              <span class="text-[11px] text-gray-300 group-hover:text-white">
                 Trang chủ
               </span>
             </a>
@@ -25,8 +25,8 @@ export default function Sidebar() {
               class="flex flex-col items-center justify-center gap-1 p-3
                     hover:bg-white/10 rounded-xl transition group"
             >
-              <i class="fa-solid fa-compass text-2xl"></i>
-              <span class="text-[10px] text-gray-300 group-hover:text-white">
+              <i class="fa-regular fa-compass text-2xl"></i>
+              <span class="text-[11px] text-gray-300 group-hover:text-white">
                 Khám phá
               </span>
             </a>
@@ -37,11 +37,12 @@ export default function Sidebar() {
               class="flex flex-col items-center justify-center gap-1 p-3
                     hover:bg-white/10 rounded-xl transition group"
             >
-              <i class="fa-solid fa-bookmark text-2xl"></i>
-              <span class="text-[10px] text-gray-300 group-hover:text-white">
+              <i class="fa-regular fa-bookmark text-2xl"></i>
+              <span class="text-[11px] text-gray-300 group-hover:text-white">
                 Thư viện
               </span>
             </a>
+          
             <div id="sidebar-login">
               
                   <hr class="my-3 w-full border-white/20 " />
@@ -51,8 +52,8 @@ export default function Sidebar() {
                     class="flex flex-col items-center justify-center gap-1 p-3
                           hover:bg-white/10 rounded-xl transition group"
                     >
-                    <i class="fa-solid fa-users-rectangle text-2xl"></i>
-                    <span class="text-[10px] text-gray-300 group-hover:text-white">
+                    <i class="fa-regular fa-user text-2xl"></i>
+                    <span class="text-[11px] text-gray-300 group-hover:text-white">
                         Đăng nhập
                     </span>
                   </a>
@@ -80,10 +81,13 @@ export default function Sidebar() {
           </div>
 
           <nav class="flex flex-col p-3 select-none">
-            <a href="/" data-navigo class="sidebar-item"><i class="fa-solid fa-house text-xl"></i><span>Trang chủ</span></a>
-            <a href="/explore" data-navigo class="sidebar-item"><i class="fa-solid fa-compass text-xl"></i><span>Khám phá</span></a>
-            <a href="/library" data-navigo class="sidebar-item"><i class="fa-solid fa-bookmark text-xl"></i><span>Thư viện</span></a>
-
+            <a href="/" data-navigo class="sidebar-item"><i class="fa-regular fa-house text-xl"></i><span>Trang chủ</span></a>
+            <a href="/explore" data-navigo class="sidebar-item"><i class="fa-regular fa-compass text-xl"></i><span>Khám phá</span></a>
+            <a href="/library" data-navigo class="sidebar-item"><i class="fa-regular fa-bookmark text-xl"></i><span>Thư viện</span></a>
+            <button class="flex sm:hidden sidebar-item">
+              <i class="fa-brands fa-chromecast text-2xl text-gray-300"></i>
+              <span>Chỉnh phát nhạc</span>
+            </button>
              <div id="slider-sidebar-login" class="px-2">
                 <hr class="border-white/20 my-2" />
                 <a href="/login" data-navigo class="block">

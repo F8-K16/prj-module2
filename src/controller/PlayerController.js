@@ -15,7 +15,7 @@ class PlayerController {
     this.initialized = false;
     this._trackClickReady = false;
 
-    this._onTimeUpdate = this._onTimeUpdate.bind(this);
+    this.onTimeUpdate = this.onTimeUpdate.bind(this);
 
     this.audio.onended = () => this.handleSongEnd();
   }
@@ -64,6 +64,8 @@ class PlayerController {
           { once: true }
         );
       });
+      this.updateInfoDetails(song);
+      this.updateExpandedInfo();
     } finally {
       this.isLoading = false;
     }
@@ -102,7 +104,9 @@ class PlayerController {
     if (!this.songs.length) return;
 
     this.currentIndex = (this.currentIndex + 1) % this.songs.length;
-    await this.loadSong(this.songs[this.currentIndex]);
+
+    const nextTrack = this.songs[this.currentIndex];
+    await this.loadSong(nextTrack);
     this.playSong();
   }
 
@@ -111,7 +115,9 @@ class PlayerController {
 
     this.currentIndex =
       (this.currentIndex - 1 + this.songs.length) % this.songs.length;
-    await this.loadSong(this.songs[this.currentIndex]);
+
+    const prevTrack = this.songs[this.currentIndex];
+    await this.loadSong(prevTrack);
     this.playSong();
   }
 
@@ -123,18 +129,26 @@ class PlayerController {
       random = Math.floor(Math.random() * this.songs.length);
     } while (random === this.currentIndex);
     this.currentIndex = random;
+    const song = this.songs[random];
 
-    await this.loadSong(this.songs[random]);
+    await this.loadSong(song);
     this.playSong();
   }
 
   setVolume(val) {
     this.audio.volume = val / 100;
-    const icon = document.querySelectorAll(
-      "#player-volume i, #player-volume-mb i"
+
+    const icons = document.querySelectorAll(
+      "#player-volume i, #player-volume-mb i, #exp-volume-btn i"
     );
 
-    icon.forEach((el) => {
+    const sliderList = document.querySelectorAll(
+      "#player-volume-slider, #player-volume-slider-mb, #exp-volume-slider"
+    );
+
+    sliderList.forEach((s) => (s.value = val));
+
+    icons.forEach((el) => {
       if (this.audio.volume === 0)
         el.className = "fa-solid fa-volume-xmark text-xl";
       else if (this.audio.volume <= 0.5)
@@ -144,11 +158,12 @@ class PlayerController {
   }
 
   toggleMute() {
-    const sliders = document.querySelectorAll(
-      "#player-volume-slider, #player-volume-slider-mb"
-    );
     const icons = document.querySelectorAll(
-      "#player-volume i, #player-volume-mb i"
+      "#player-volume i, #player-volume-mb i, #exp-volume-btn i"
+    );
+
+    const sliders = document.querySelectorAll(
+      "#player-volume-slider, #player-volume-slider-mb, #exp-volume-slider"
     );
 
     if (this.audio.volume > 0) {
@@ -159,6 +174,7 @@ class PlayerController {
     }
 
     sliders.forEach((s) => (s.value = this.audio.volume * 100));
+
     icons.forEach((icon) => {
       if (this.audio.volume === 0)
         icon.className = "fa-solid fa-volume-xmark text-xl";
@@ -175,48 +191,71 @@ class PlayerController {
     this.audio.currentTime = (val / 100) * duration;
   }
 
-  _onTimeUpdate() {
+  onTimeUpdate() {
     const progress = document.querySelector("#player-progress-bar");
     const currentEl = document.querySelector("#player-current");
+    const expProgress = document.querySelector("#exp-progress");
+    const expCurrent = document.querySelector("#exp-current");
     const duration = this.audio.duration;
 
     if (!duration || isNaN(duration)) return;
 
     if (progress) progress.value = (this.audio.currentTime / duration) * 100;
+
     if (currentEl)
       currentEl.textContent = formatDuration(this.audio.currentTime);
+
+    if (expProgress)
+      expProgress.value = (this.audio.currentTime / duration) * 100;
+
+    if (expCurrent)
+      expCurrent.textContent = formatDuration(this.audio.currentTime);
   }
 
   initProgressBar() {
-    this.audio.removeEventListener("timeupdate", this._onTimeUpdate);
-    this.audio.addEventListener("timeupdate", this._onTimeUpdate);
+    this.audio.removeEventListener("timeupdate", this.onTimeUpdate);
+    this.audio.addEventListener("timeupdate", this.onTimeUpdate);
   }
 
   updatePlayButton(isPlaying) {
-    const icon = document.querySelector("#player-play-btn i");
-    icon.className = isPlaying
-      ? "fa-solid fa-pause text-3xl"
-      : "fa-solid fa-play text-3xl";
+    ["#player-play-btn i", "#exp-play-btn i"].forEach((selector) => {
+      const icon = document.querySelector(selector);
+      if (!icon) return;
+
+      icon.className = isPlaying
+        ? "fa-solid fa-pause text-3xl"
+        : "fa-solid fa-play text-3xl";
+    });
   }
 
   toggleShuffle() {
     this.isShuffle = !this.isShuffle;
     if (this.isShuffle) this.isRepeat = false;
-    ["#player-shuffle-btn", "#player-shuffle-btn-mb"].forEach((id) =>
+    [
+      "#player-shuffle-btn",
+      "#player-shuffle-btn-mb",
+      "#exp-shuffle-btn",
+    ].forEach((id) =>
       document.querySelector(id)?.classList.toggle("active", this.isShuffle)
     );
-    ["#player-repeat-btn", "#player-repeat-btn-mb"].forEach((id) =>
-      document.querySelector(id)?.classList.toggle("active", this.isRepeat)
+    ["#player-repeat-btn", "#player-repeat-btn-mb", "#exp-repeat-btn"].forEach(
+      (id) =>
+        document.querySelector(id)?.classList.toggle("active", this.isRepeat)
     );
   }
 
   toggleRepeat() {
     this.isRepeat = !this.isRepeat;
     if (this.isRepeat) this.isShuffle = false;
-    ["#player-repeat-btn", "#player-repeat-btn-mb"].forEach((id) =>
-      document.querySelector(id)?.classList.toggle("active", this.isRepeat)
+    ["#player-repeat-btn", "#player-repeat-btn-mb", "#exp-repeat-btn"].forEach(
+      (id) =>
+        document.querySelector(id)?.classList.toggle("active", this.isRepeat)
     );
-    ["#player-shuffle-btn", "#player-shuffle-btn-mb"].forEach((id) =>
+    [
+      "#player-shuffle-btn",
+      "#player-shuffle-btn-mb",
+      "#exp-shuffle-btn",
+    ].forEach((id) =>
       document.querySelector(id)?.classList.toggle("active", this.isShuffle)
     );
   }
@@ -239,12 +278,14 @@ class PlayerController {
       if (!btn || !menu) return;
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
-        menu.classList.remove("hidden");
-        menu.classList.add("flex");
+        menu.classList.toggle("hidden");
       });
       document.addEventListener("click", (e) => {
-        if (!menu.contains(e.target) && !btn.contains(e.target))
+        const clickedOutside = !menu.contains(e.target) && e.target !== btn;
+
+        if (clickedOutside) {
           menu.classList.add("hidden");
+        }
       });
     };
 
@@ -252,7 +293,7 @@ class PlayerController {
     toggleMenu("#mobile-right-toggle", "#mobile-right-menu");
   }
 
-  _updateInfoDetails(song) {
+  updateInfoDetails(song) {
     const infoBox = document.querySelector("#info-details-box");
     if (!infoBox) return;
 
@@ -289,7 +330,7 @@ class PlayerController {
       await this.loadSong(song);
       await this.playSong();
 
-      this._updateInfoDetails(song);
+      this.updateInfoDetails(song);
       document.querySelector("#player-wrapper").classList.remove("hidden");
 
       this.highlightActiveSong(trackId);
@@ -308,10 +349,121 @@ class PlayerController {
   }
 
   highlightActiveSong(id) {
-    const prev = document.querySelector(".track-item.playing");
-    if (prev) prev.classList.remove("playing");
-    const el = document.querySelector(`.track-item[data-track-id="${id}"]`);
-    if (el) el.classList.add("playing");
+    document.querySelectorAll(".playing").forEach((el) => {
+      el.classList.remove("playing");
+    });
+
+    const tracks = document.querySelectorAll(
+      `.track-item[data-track-id="${id}"]`
+    );
+    tracks.forEach((el) => {
+      el.classList.add("playing");
+      setTimeout(() => {
+        el.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }, 200);
+    });
+  }
+
+  updateExpandedInfo() {
+    if (!this.currentSong) return;
+    const s = this.currentSong;
+
+    document.querySelector("#exp-thumb").src = s.thumbnails?.[0] || "";
+    document.querySelector("#exp-title").textContent = s.title;
+    document.querySelector("#exp-artist").textContent = s.artists?.[0] || "";
+
+    document.querySelector("#exp-duration").textContent = formatDuration(
+      this.audio.duration
+    );
+  }
+
+  renderRelatedList() {
+    const box = document.querySelector("#exp-related-list");
+    if (!box) return;
+
+    box.innerHTML = this.songs
+      .map(
+        (t) => `
+      <div class="track-item flex items-center gap-4 p-3 rounded-lg text-white hover:bg-white/10 cursor-pointer transition group"
+           data-track-id="${t.id}">
+        <div class="relative">
+          <img src="${
+            t.thumbnails?.[0]
+          }" class="w-12 h-12 rounded-lg object-cover" />
+
+          <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition duration-200"></div>
+
+          <!-- Play icon -->
+          <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-200">
+              <i class="fa-solid fa-play text-white text-sm"></i>
+          </div>
+        </div>
+        <div class="flex flex-col flex-1">
+              <div class="font-semibold">${t.title}</div>
+              <div class="text-sm text-white/60">${t.artists.join(", ")}</div>
+            </div>
+
+            <div class="text-sm text-white/50">${formatDuration(
+              t.duration
+            )}</div>
+        </div>
+    `
+      )
+      .join("");
+
+    if (this.currentSong) {
+      this.highlightActiveSong(this.currentSong.id);
+    }
+  }
+
+  initExpandedPlayer() {
+    const miniPlayer = document.querySelector("#player-wrapper");
+    const expanded = document.querySelector("#player-expanded");
+
+    miniPlayer.addEventListener("click", (e) => {
+      if (e.target.closest(".player-act")) return;
+      if (e.target.id === "player-progress-bar") return;
+
+      expanded.classList.remove("hidden");
+      setTimeout(() => expanded.classList.add("open"));
+      miniPlayer.classList.add("hidden");
+
+      this.updateExpandedInfo();
+      this.renderRelatedList();
+    });
+
+    document
+      .querySelector("#player-expanded-close")
+      .addEventListener("click", () => {
+        expanded.classList.remove("open");
+        setTimeout(() => expanded.classList.add("hidden"), 300);
+        miniPlayer.classList.remove("hidden");
+      });
+
+    document
+      .querySelector("#exp-play-btn")
+      .addEventListener("click", () => this.togglePlay());
+    document
+      .querySelector("#exp-next-btn")
+      .addEventListener("click", () => this.nextSong());
+    document
+      .querySelector("#exp-prev-btn")
+      .addEventListener("click", () => this.prevSong());
+
+    document
+      .querySelector("#exp-progress")
+      .addEventListener("input", (e) => this.onProgressChange(e.target.value));
+
+    this.addListener("#exp-volume-slider", "input", (e) =>
+      this.setVolume(e.target.value)
+    );
+    this.addListener("#exp-volume-btn", "click", () => this.toggleMute());
+
+    this.addListener("#exp-shuffle-btn", "click", () => this.toggleShuffle());
+    this.addListener("#exp-repeat-btn", "click", () => this.toggleRepeat());
   }
 
   addListener = (selector, event, handler) => {
@@ -321,10 +473,8 @@ class PlayerController {
   };
 
   init() {
-    if (this.initialized) return;
-    this.initialized = true;
-
     this.initProgressBar();
+    this.initExpandedPlayer();
     this.addListener("#player-play-btn", "click", () => this.togglePlay());
     this.addListener("#player-next-btn", "click", () => this.nextSong());
     this.addListener("#player-prev-btn", "click", () => this.prevSong());

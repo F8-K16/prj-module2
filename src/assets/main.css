@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 body {
-  @apply font-[Roboto] bg-linear-to-br from-[#05060d] via-[#0d1230] to-[#26114d] overflow-x-hidden;
+  @apply font-[Roboto] bg-[linear-gradient(160deg,#050a12,#0a1a2f,#112e42,#1b2f4a)] overflow-x-hidden;
 }
 
 /* Sidebar */
@@ -33,8 +33,19 @@ body {
 #player-shuffle-btn.active,
 #player-repeat-btn.active,
 #player-shuffle-btn-mb.active,
-#player-repeat-btn-mb.active {
+#player-repeat-btn-mb.active,
+#exp-shuffle-btn.active,
+#exp-repeat-btn.active {
   @apply text-[#00bcd4];
+}
+
+#player-expanded {
+  transform: translateY(100%);
+  transition: transform 0.4s ease;
+}
+
+#player-expanded.open {
+  transform: translateY(0%);
 }
 
 /* Scrollbar */

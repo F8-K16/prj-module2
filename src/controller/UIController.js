@@ -6,6 +6,7 @@ class UIController {
     this.overlay = null;
     this.searchModal = null;
     this.searchBox = null;
+    this.dropdownUser = null;
 
     this.initialized = false;
     this._sidebarListenerRegistered = false;
@@ -56,13 +57,58 @@ class UIController {
     this.overlay?.classList.add("opacity-0", "pointer-events-none");
   }
 
-  initNavbarSearch() {
+  toggleDropdownUser(forceState = null) {
+    const dropdown = document.querySelector("#dropdown-user");
+    if (!dropdown) return;
+
+    const isHidden = dropdown.classList.contains("opacity-0");
+
+    const shouldOpen = forceState !== null ? forceState : isHidden;
+
+    if (shouldOpen) {
+      dropdown.classList.remove(
+        "opacity-0",
+        "pointer-events-none",
+        "translate-y-2"
+      );
+      dropdown.classList.add("opacity-100", "translate-y-0");
+    } else {
+      dropdown.classList.add(
+        "opacity-0",
+        "pointer-events-none",
+        "translate-y-2"
+      );
+      dropdown.classList.remove("opacity-100", "translate-y-0");
+    }
+  }
+
+  hideDropdownUser() {
+    this.toggleDropdownUser(false);
+  }
+
+  showDropdownUser() {
+    const userBtn = document.querySelector("#user-btn");
+    const dropdown = document.querySelector("#dropdown-user");
+
+    if (!userBtn || !dropdown) return;
+
+    userBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      this.toggleDropdownUser();
+    });
+
+    document.addEventListener("click", () => {
+      this.hideDropdownUser();
+    });
+  }
+
+  initNavbarSearchMobile() {
     if (this._searchListenerRegistered) return;
     this._searchListenerRegistered = true;
     const openBtn = document.querySelector("#open-search");
-    const closeBtn = document.querySelector("#close-search");
+    const closeBtn = document.querySelector("#mobile-close-search");
 
-    this.searchModal = document.querySelector("#search-modal");
+    this.searchModal = document.querySelector("#mobile-search-modal");
     this.searchBox = document.querySelector("#search-box");
 
     if (!openBtn || !closeBtn || !this.searchModal) return;
@@ -110,6 +156,55 @@ class UIController {
       } else {
         link.classList.remove("sidebar-active");
       }
+    });
+  }
+
+  initHScroll() {
+    document.querySelectorAll(".hscroll-inner").forEach((scrollEl) => {
+      const container = scrollEl.parentElement;
+
+      const prevBtn = container.querySelector(".hscroll-prev");
+      const nextBtn = container.querySelector(".hscroll-next");
+
+      if (!prevBtn || !nextBtn) return;
+
+      const column = scrollEl.children[0];
+      const columnWidth = column ? column.offsetWidth : 300;
+
+      const gap = 24;
+
+      const updateButtons = () => {
+        const maxScroll = scrollEl.scrollWidth - scrollEl.clientWidth;
+
+        if (scrollEl.scrollLeft <= 0) {
+          prevBtn.classList.add("opacity-30", "pointer-events-none");
+        } else {
+          prevBtn.classList.remove("opacity-30", "pointer-events-none");
+        }
+
+        if (scrollEl.scrollLeft >= maxScroll - gap * 2) {
+          nextBtn.classList.add("opacity-30", "pointer-events-none");
+        } else {
+          nextBtn.classList.remove("opacity-30", "pointer-events-none");
+        }
+      };
+
+      scrollEl.addEventListener("scroll", updateButtons);
+      updateButtons();
+
+      prevBtn.onclick = () => {
+        scrollEl.scrollBy({
+          left: -(columnWidth + gap),
+          behavior: "smooth",
+        });
+      };
+
+      nextBtn.onclick = () => {
+        scrollEl.scrollBy({
+          left: columnWidth + gap,
+          behavior: "smooth",
+        });
+      };
     });
   }
 
@@ -183,40 +278,43 @@ class UIController {
 
     navbarEl.innerHTML = `
       <div class="relative group select-none">
-        <div class="w-9 h-9 flex items-center justify-center bg-white/20 rounded-full text-white font-semibold cursor-pointer">
-          ${letter}
-        </div>
+        <button id="user-btn"class="w-10 h-10 flex items-center justify-center bg-white/20 rounded-full text-white font-semibold cursor-pointer hover:bg-white/30 transition">
+           ${letter}
+        </button>
 
-        <!-- Dropdown -->
-        <div 
-          class="absolute -right-1/2 w-48 bg-[#1a1a1a] text-white opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-100"
-        >
-          <a href="/auth/profile" 
-             data-navigo 
-             class="block px-4 py-2 hover:bg-white/10 transition">
-             Thông tin người dùng
+        <div id="dropdown-user"
+          class="absolute right-0 mt-2 w-52 rounded-xl overflow-hidden
+                bg-[#1f1f1f] shadow-lg border border-white/10
+                opacity-0 pointer-events-none translate-y-2
+                transition-all duration-150 z-50">
+          <a href="/auth/profile"
+            data-navigo
+            class="block px-4 py-3 text-sm hover:bg-white/10 transition">
+            Thông tin người dùng
           </a>
-          <a href="/auth/change-password" 
-             data-navigo 
-             class="block px-4 py-2 hover:bg-white/10 transition">
-             Đổi mật khẩu
+
+          <a href="/auth/change-password"
+            data-navigo
+            class="block px-4 py-3 text-sm hover:bg-white/10 transition">
+            Đổi mật khẩu
           </a>
-          <a href="/auth/logout" 
-             data-navigo 
-             class="block px-4 py-2 hover:bg-white/10 transition">
-             Đăng xuất
+
+          <a href="/auth/logout"
+            data-navigo
+            class="block px-4 py-3 text-sm text-red-400 hover:bg-white/10 transition">
+            Đăng xuất
           </a>
         </div>
       </div>
     `;
+    this.showDropdownUser();
   }
 
-  async init() {
+  init() {
     if (this.initialized) return;
     this.initialized = true;
 
     this.initSidebar();
-    this.initNavbarSearch();
     this.loadSidebarUser();
     this.loadNavbarUser();
   }

@@ -24,12 +24,12 @@ export default function VideoDetailPage(data) {
   playerVideo.setVideos(allVideos);
 
   return `
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-y-12">
-        <div class="md:col-span-1">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-y-12 md:px-8 lg:px-0 gap-x-4">
+        <div class="lg:col-span-1">
           ${InfoDetailsVideo(currentVideo)}
         </div>
 
-        <div class="md:col-span-1">
+        <div class="lg:col-span-1">
             ${VideoListPlayer(allVideos)}
         </div>
       </div>

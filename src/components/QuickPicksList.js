@@ -3,12 +3,14 @@ import HScroll from "./HScroll.js";
 import { splitToColumns } from "../utils/splitToColumns.js";
 import { formatViews } from "../utils/formatViews.js";
 
-export default function QuickPicksList(
-  title,
-  items = [],
-  basePath = "/songs/details"
-) {
+export default function QuickPicksList(title, items = []) {
   function ListItem(item) {
+    const type = item.type;
+    let path = "songs/details";
+
+    if (type === "album") path = "/albums/details";
+    if (type === "playlist") path = "/playlists/details";
+
     const image =
       Array.isArray(item.thumbnails) && item.thumbnails.length > 0
         ? item.thumbnails[0]
@@ -26,9 +28,9 @@ export default function QuickPicksList(
 
     return `
         <a
-        href="${basePath}/${item.id ?? item.slug}"
+        href="${path}/${item.id ?? item.slug}"
         data-navigo
-        class="flex items-center gap-4 py-2 hover:bg-white/5 rounded-lg transition cursor-pointer group">
+        class="flex items-center gap-4 py-2 px-3 hover:bg-white/5 rounded-lg transition cursor-pointer group">
         <div class="relative overflow-hidden rounded">
           <img 
             src="${image}" 
@@ -63,7 +65,7 @@ export default function QuickPicksList(
 
   function ListColumn(items) {
     return `
-      <div class="flex flex-col gap-3 shrink-0 min-w-[calc(33%-16px)] -mb-6 ">
+      <div class="flex flex-col gap-3 shrink-0 min-w-[33.33%] -mb-6">
         ${items.map(ListItem).join("")}
       </div>
     `;

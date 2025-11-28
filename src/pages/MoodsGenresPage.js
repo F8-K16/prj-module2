@@ -1,6 +1,6 @@
 import CategoriesList from "../components/CategoriesList";
 
-export default async function MoodsGenresPage(categories, lineSongs) {
+export default function MoodsGenresPage(categories, lineSongs) {
   if (!categories.length)
     return "<p class='text-white p-4'>Không có dữ liệu</p>";
 

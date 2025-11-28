@@ -1,10 +1,11 @@
 import CardList from "../components/CardList";
+import QuickPicksList from "../components/QuickPicksList";
 import TagList from "../components/TagList";
 import AppService from "../services/AppService";
 
-export default async function MoodDetailPage(m, params) {
+export default async function MoodDetailPage(moodsDetails, quickPicks, params) {
   const slug = params.slug;
-  const info = m.hero;
+  const info = moodsDetails.hero;
 
   const moods = await AppService.Home.getMoods();
 
@@ -15,7 +16,11 @@ export default async function MoodDetailPage(m, params) {
           </div>
           <h1 class="font-bold text-[45px] mb-4">${info.title}</h1>
           <p>${info.subtitle}</p>
-          ${m.sections.map((s) => CardList(s.title, s.items)).join("")}
+          ${QuickPicksList("Quick Picks", quickPicks)}
+          
+          ${moodsDetails.sections
+            .map((s) => CardList(s.title, s.items))
+            .join("")}
         </div>
   
       `;

@@ -30,6 +30,11 @@ const AppService = {
       return res.data || [];
     },
 
+    async getQuickPicksByMood(mood) {
+      const res = await httpsRequest.get(`/quick-picks?mood=${mood}`);
+      return res.data;
+    },
+
     async getAlbumsForYou() {
       const res = await httpsRequest.get("/home/albums-for-you");
       return res.data || [];
@@ -158,7 +163,7 @@ const AppService = {
     },
 
     async getAlbum(slug) {
-      const res = await httpsRequest.get(`/albums/details/${slug}`);
+      const res = await httpsRequest.get(`/albums/details/${slug}?limit=50`);
       return res.data || {};
     },
 
@@ -232,6 +237,7 @@ const AppService = {
     async playRecord(payload) {
       const token = localStorage.getItem("token");
 
+      if (!token) return;
       return httpsRequest.post("/events/play", payload, {
         headers: {
           Authorization: `Bearer ${token}`,

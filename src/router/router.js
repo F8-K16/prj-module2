@@ -30,24 +30,36 @@ import {
 import { RecordPlayEvent } from "../utils/RecordPlayEvent";
 import { loading } from "../utils/loading";
 
-const router = new Navigo("/");
+const router = new Navigo("/", {
+  ignoreNavigate: true,
+  noMatchWarning: false,
+});
 
 async function render(page, controller) {
   try {
     loading.show();
-    const main = document.querySelector("#main-view");
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
     const html = await page();
+    const main = document.querySelector("#main-view");
     main.innerHTML = html;
     if (controller) controller();
+
+    router.updatePageLinks();
+    UI.initHScroll();
+    UI.initNavbarSearchMobile();
     UI.setActiveSidebar();
+    UI.closeSidebar();
+    UI.hideDropdownUser();
   } finally {
-    loading.hide();
+    setTimeout(() => loading.hide(), 200);
   }
 }
 // -------------------------------------------------------------------------
 
 router.on({
   "/": async () => {
+    loading.show();
     const token = localStorage.getItem("token");
     const [
       quickPick,
@@ -107,6 +119,7 @@ router.on({
   },
 
   "/charts": async () => {
+    loading.show();
     const [countries, topVideos, topArtists] = await Promise.all([
       AppService.Explore.getCountries(),
       AppService.Explore.getTopVideos("GLOBAL"),
@@ -120,7 +133,9 @@ router.on({
 
   "/moods/:slug": async ({ data }) => {
     const moodDetails = await AppService.Home.getMoodDetails(data.slug);
-    await render(() => MoodDetailPage(moodDetails, data));
+    const quickPicks = await AppService.Home.getQuickPicksByMood(data.slug);
+
+    await render(() => MoodDetailPage(moodDetails, quickPicks, data));
   },
 
   "/moods-and-genres": async () => {
@@ -129,7 +144,7 @@ router.on({
       AppService.Lines.getAll(),
     ]);
 
-    render(() => MoodsGenresPage(categories, lineSongs));
+    await render(() => MoodsGenresPage(categories, lineSongs));
   },
 
   "/categories/:slug": async ({ data }) => {
@@ -138,6 +153,7 @@ router.on({
   },
 
   "/lines/:slug": async ({ data }) => {
+    loading.show();
     const [songs, playlists, videos, albums] = await Promise.all([
       AppService.Lines.getLineSongs(data.slug),
       AppService.Lines.getLinePlaylists(data.slug),
@@ -172,6 +188,8 @@ router.on({
 
   "/videos/details/:id": async ({ data }) => {
     loading.show();
+    player.pauseSong();
+    document.querySelector("#player-wrapper")?.classList.add("hidden");
     const videoDetails = await AppService.Details.getVideo(data.id);
     await render(() => VideoDetailPage(videoDetails, data));
     playerVideo.playVideoFromDetail(data.id);
