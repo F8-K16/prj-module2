@@ -18,8 +18,8 @@ export default function HomePage(
           ? `<h2 class='text-4xl lg:text-5xl font-semibold text-white mb-20'>👋 Chào mừng <span>${user.name}</span></h2>`
           : ""
       }
-      ${personalized.length ? QuickPicksList("Nghe gần đây", personalized) : ""}
       ${TagList(moods)}
+      ${personalized.length ? QuickPicksList("Nghe gần đây", personalized) : ""}
       ${QuickPicksList("Quick Picks", quickPick)}
       ${CardList("Album gợi ý cho bạn", albums, "/albums/details")}
       ${CardList("Today's Hits", todaysHits)}

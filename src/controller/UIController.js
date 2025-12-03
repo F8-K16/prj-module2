@@ -245,15 +245,23 @@ class UIController {
 
     const sidebarLogin = document.querySelector("#sidebar-login");
     const sliderSidebarLogin = document.querySelector("#slider-sidebar-login");
+    const sidebarUpgrade = document.querySelector("#sidebar-upgrade");
+    const sliderSidebarUpgrade = document.querySelector(
+      "#slider-sidebar-upgrade"
+    );
 
     if (!sidebarLogin || !sliderSidebarLogin) return;
 
     if (token) {
       sidebarLogin.classList.add("hidden");
       sliderSidebarLogin.classList.add("hidden");
+      sidebarUpgrade.classList.remove("hidden");
+      sliderSidebarUpgrade.classList.remove("hidden");
     } else {
       sidebarLogin.classList.remove("hidden");
       sliderSidebarLogin.classList.remove("hidden");
+      sidebarUpgrade.classList.add("hidden");
+      sliderSidebarUpgrade.classList.add("hidden");
     }
   }
 
@@ -273,7 +281,7 @@ class UIController {
     }
 
     const user = JSON.parse(localStorage.getItem("user"));
-    const name = user.name || "U";
+    const name = user?.name || "U";
     const letter = name.charAt(0).toUpperCase();
 
     navbarEl.innerHTML = `
@@ -311,9 +319,6 @@ class UIController {
   }
 
   init() {
-    if (this.initialized) return;
-    this.initialized = true;
-
     this.initSidebar();
     this.loadSidebarUser();
     this.loadNavbarUser();

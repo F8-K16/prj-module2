@@ -1,6 +1,7 @@
 import { formatDuration } from "../utils/formatDuration";
+import { loading } from "../utils/loading";
 
-class PlayerController {
+class SongPlayerController {
   constructor() {
     this.songs = [];
     this.currentIndex = 0;
@@ -12,7 +13,6 @@ class PlayerController {
     this.playPromise = null;
     this.isLoading = false;
 
-    this.initialized = false;
     this._trackClickReady = false;
 
     this.onTimeUpdate = this.onTimeUpdate.bind(this);
@@ -29,6 +29,8 @@ class PlayerController {
     if (!song) return;
 
     try {
+      this.isLoading = true;
+      loading.show();
       if (this.playPromise) {
         try {
           this.audio.pause();
@@ -44,7 +46,7 @@ class PlayerController {
 
       document.querySelector(
         "#player-thumbnail"
-      ).style.backgroundImage = `url('${song.thumbnails?.[0]}')`;
+      ).style.backgroundImage = `url('${song?.thumbnails?.[0]}')`;
 
       document.querySelector("#player-title").textContent = song.title;
       document.querySelector("#player-artist").textContent =
@@ -68,6 +70,7 @@ class PlayerController {
       this.updateExpandedInfo();
     } finally {
       this.isLoading = false;
+      loading.hide();
     }
   }
 
@@ -103,15 +106,33 @@ class PlayerController {
   async nextSong() {
     if (!this.songs.length) return;
 
-    this.currentIndex = (this.currentIndex + 1) % this.songs.length;
+    if (this.isRepeat) {
+      await this.loadSong(this.currentSong);
+      return this.playSong();
+    }
 
+    if (this.isShuffle) {
+      return this.playRandomSong();
+    }
+
+    this.currentIndex = (this.currentIndex + 1) % this.songs.length;
     const nextTrack = this.songs[this.currentIndex];
+
     await this.loadSong(nextTrack);
     this.playSong();
   }
 
   async prevSong() {
     if (!this.songs.length) return;
+
+    if (this.isRepeat) {
+      await this.loadSong(this.currentSong);
+      return this.playSong();
+    }
+
+    if (this.isShuffle) {
+      return this.playRandomSong();
+    }
 
     this.currentIndex =
       (this.currentIndex - 1 + this.songs.length) % this.songs.length;
@@ -349,6 +370,7 @@ class PlayerController {
   }
 
   highlightActiveSong(id) {
+    if (!id) return;
     document.querySelectorAll(".playing").forEach((el) => {
       el.classList.remove("playing");
     });
@@ -403,7 +425,9 @@ class PlayerController {
         </div>
         <div class="flex flex-col flex-1">
               <div class="font-semibold">${t.title}</div>
-              <div class="text-sm text-white/60">${t.artists.join(", ")}</div>
+              <div class="text-sm text-white/60">${
+                t?.artists[0] || "Không rõ nghệ sĩ"
+              }</div>
             </div>
 
             <div class="text-sm text-white/50">${formatDuration(
@@ -466,6 +490,16 @@ class PlayerController {
     this.addListener("#exp-repeat-btn", "click", () => this.toggleRepeat());
   }
 
+  destroy() {
+    this.audio?.pause();
+    this.currentSong = null;
+
+    document.querySelector("#player-wrapper")?.classList.add("hidden");
+    document.querySelector("#player-expanded")?.classList.add("hidden");
+
+    clearInterval(this._trackingTimer);
+  }
+
   addListener = (selector, event, handler) => {
     document
       .querySelectorAll(selector)
@@ -507,4 +541,4 @@ class PlayerController {
   }
 }
 
-export const player = new PlayerController();
+export const songPlayer = new SongPlayerController();

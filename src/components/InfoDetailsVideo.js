@@ -1,19 +1,9 @@
 import { formatVideoDuration } from "../utils/formatDuration";
 
-export default function VideoInfoDetails(data) {
+export default function InfoDetailsVideo(data) {
   return `
     <div class="sticky top-24 text-white flex flex-col gap-5 items-center">
-
-      <div class="w-full h-[70vh] aspect-video rounded-xl overflow-hidden">
-        <iframe 
-          id="video-iframe-display"
-          class="w-full h-full"
-          src="https://www.youtube.com/embed/${data.videoId}?enablejsapi=1"
-          allow="autoplay; encrypted-media"
-          frameborder="0"
-        ></iframe>
-      </div>
-
+      <p class="mb-4">Đang phát</p>
       <h1 id="video-title-display" class="text-xl xl:text-3xl font-bold text-center">
         ${data.title}
       </h1>

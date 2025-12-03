@@ -1,4 +1,4 @@
-export default function PlayerUI() {
+export default function SongPlayerUI() {
   return `
   <div id="player-wrapper"
        class="hidden fixed left-0 right-0 bottom-0 text-white bg-[#212121] border-t border-gray-800 z-30">
@@ -113,9 +113,9 @@ export default function PlayerUI() {
       <div class="w-12 h-1.5 bg-gray-500 rounded-full"></div>
     </div>
 
-    <div class="overflow-y-auto flex-1 px-5 pb-20">
+    <div class="flex-1 px-5">
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div class="flex flex-col items-center text-center gap-6">
+        <div class="flex flex-col items-center text-center gap-6 lg:sticky lg:top-0 lg:self-start">
           <img id="exp-thumb"
               class="w-80 h-80 lg:w-100 lg:h-100 rounded-xl object-cover shadow-[0_0_25px_#0d948880]"/>
 
@@ -188,7 +188,7 @@ export default function PlayerUI() {
         </div>
 
         <!-- RIGHT: Related Tracks -->
-        <div>
+        <div class="lg:col-span-1 overflow-y-auto max-h-[85vh] pr-2">
           <h3 class="text-2xl font-semibold mb-4 border-b border-teal-600/40 pb-2">Danh sách phát liên quan</h3>
           <div id="exp-related-list" class="flex flex-col overflow-y-auto overscroll-y-contain"></div>
         </div>

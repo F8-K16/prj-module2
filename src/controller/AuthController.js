@@ -86,9 +86,9 @@ export async function loginHandle(e) {
     loading.show();
     const data = await AppService.Auth.login(payload);
     saveAuthData(data);
+    Toast.success("Đăng nhập thành công! Vui lòng đợi trong giây lát!");
     UI.loadNavbarUser();
     UI.loadSidebarUser();
-    Toast.success("Đăng nhập thành công! Vui lòng đợi trong giây lát!");
     router.navigate("/");
   } catch (error) {
     console.log(error);

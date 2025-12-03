@@ -1,6 +1,6 @@
 import InfoDetails from "../components/InfoDetails";
 import SongListPlayer from "../components/SongListPlayer";
-import { player } from "../controller/PlayerController";
+import { songPlayer } from "../controller/SongPlayerController";
 
 export default function SongDetailPage(data) {
   const currentSong = {
@@ -13,10 +13,12 @@ export default function SongDetailPage(data) {
   };
 
   const albumTracks = data.album?.tracks || [];
-  const playlistTracks =
-    data.playlists?.flatMap((p) => p.tracks || []).slice(0, 45) || [];
+  const playlistTracks = data.playlists?.flatMap((p) => p.tracks || []) || [];
 
-  const mixTracks = [...albumTracks, ...playlistTracks];
+  const mixTracksRaw = [...albumTracks, ...playlistTracks];
+
+  const mixTracks = [...new Map(mixTracksRaw.map((t) => [t.id, t])).values()];
+
   const relatedTracks = data.related || [];
 
   const finalTracks = mixTracks.length > 0 ? mixTracks : relatedTracks;
@@ -31,10 +33,7 @@ export default function SongDetailPage(data) {
     artists: t.artists || ["Không rõ nghệ sĩ"],
   }));
 
-  player.setSongs([
-    ...new Map([currentSong, ...mergedTracks].map((s) => [s.id, s])).values(),
-  ]);
-
+  songPlayer.setSongs(mergedTracks);
   return `
     <div class=" grid grid-cols-1 lg:grid-cols-2 gap-y-12 md:px-8 lg:px-0 gap-x-4">
       <div id="info-details-box" class="lg:col-span-1">

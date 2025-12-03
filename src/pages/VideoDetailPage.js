@@ -1,6 +1,6 @@
-import InfoDetailsVideo from "../components/InfoDetailsVideo";
+import { videoPlayer } from "../controller/VideoPlayerController";
 import VideoListPlayer from "../components/VideoListPlayer";
-import { playerVideo } from "../controller/VideoPlayerController";
+import InfoDetailsVideo from "../components/InfoDetailsVideo";
 
 export default function VideoDetailPage(data) {
   const currentVideo = {
@@ -18,20 +18,39 @@ export default function VideoDetailPage(data) {
     thumbnails: v.thumbnails,
     duration: v.duration,
     videoId: v.videoId,
+    popularity: v.popularity,
   }));
 
   const allVideos = [currentVideo, ...relatedVideos];
-  playerVideo.setVideos(allVideos);
+  const finalVideos = [...new Map(allVideos.map((t) => [t.id, t])).values()];
 
-  return `
+  videoPlayer.setVideos(finalVideos);
+  videoPlayer.playVideoFromDetail(currentVideo.id);
+
+  videoPlayer.updatePlayButton(true);
+  videoPlayer.updateExpandedInfo();
+  videoPlayer.renderRelatedList();
+  videoPlayer.setupListEvents();
+  videoPlayer.initExpandedVideoPlayer();
+
+  const exp = document.querySelector("#video-player-expanded");
+  exp?.classList.remove("hidden");
+  setTimeout(() => exp?.classList.add("open"), 20);
+
+  const html = `
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-y-12 md:px-8 lg:px-0 gap-x-4">
         <div class="lg:col-span-1">
           ${InfoDetailsVideo(currentVideo)}
         </div>
 
-        <div class="lg:col-span-1">
-            ${VideoListPlayer(allVideos)}
+        <div id="video-detail-list" class="lg:col-span-1">
+            ${VideoListPlayer(finalVideos)}
         </div>
       </div>
     `;
+
+  setTimeout(() => {
+    videoPlayer.setupExternalListEvents("#video-detail-list");
+  });
+  return html;
 }

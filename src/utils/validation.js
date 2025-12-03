@@ -77,6 +77,11 @@ export function validateChangePasswordForm(data) {
       field: "password",
       message: "Mật khẩu mới phải tối thiểu 6 ký tự",
     });
+  } else if (data.password === data.oldPassword) {
+    errors.push({
+      field: "password",
+      message: "Mật khẩu mới phải khác mật khẩu hiện tại",
+    });
   }
 
   if (!data.confirmPassword) {

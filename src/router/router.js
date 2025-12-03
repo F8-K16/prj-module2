@@ -19,8 +19,8 @@ import ProfilePage from "../pages/ProfilePage";
 import ChangePasswordPage from "../pages/ChangePasswordPage";
 
 import { UI } from "../controller/UIController";
-import { player } from "../controller/PlayerController";
-import { playerVideo } from "../controller/VideoPlayerController";
+import { songPlayer } from "../controller/SongPlayerController";
+import { videoPlayer } from "../controller/VideoPlayerController";
 import {
   changePasswordHandle,
   logoutHandle,
@@ -30,36 +30,40 @@ import {
 import { RecordPlayEvent } from "../utils/RecordPlayEvent";
 import { loading } from "../utils/loading";
 
-const router = new Navigo("/", {
-  ignoreNavigate: true,
-  noMatchWarning: false,
-});
+const router = new Navigo("/");
 
-async function render(page, controller) {
-  try {
-    loading.show();
-    await new Promise((resolve) => setTimeout(resolve, 0));
+async function render(page, controller, minLoadingTime = 200) {
+  const startTime = Date.now();
+  loading.show();
+  await new Promise((resolve) => setTimeout(resolve, 0));
 
-    const html = await page();
-    const main = document.querySelector("#main-view");
-    main.innerHTML = html;
-    if (controller) controller();
+  const html = await page();
+  const main = document.querySelector("#main-view");
+  main.innerHTML = html;
+  if (controller) controller();
 
-    router.updatePageLinks();
-    UI.initHScroll();
-    UI.initNavbarSearchMobile();
-    UI.setActiveSidebar();
-    UI.closeSidebar();
-    UI.hideDropdownUser();
-  } finally {
-    setTimeout(() => loading.hide(), 200);
+  router.updatePageLinks();
+  UI.initHScroll();
+  UI.initNavbarSearchMobile();
+  UI.setActiveSidebar();
+  UI.closeSidebar();
+  UI.hideDropdownUser();
+
+  window.scrollTo({ top: 0, behavior: "auto" });
+
+  const elapsed = Date.now() - startTime;
+  const remaining = minLoadingTime - elapsed;
+  if (remaining > 0) {
+    setTimeout(() => loading.hide(), remaining);
+  } else {
+    loading.hide();
   }
 }
+
 // -------------------------------------------------------------------------
 
 router.on({
   "/": async () => {
-    loading.show();
     const token = localStorage.getItem("token");
     const [
       quickPick,
@@ -78,28 +82,30 @@ router.on({
       token ? AppService.Auth.getProfile(token) : null,
       token ? AppService.Home.getPersonalized(token) : [],
     ]);
-    await render(() =>
-      HomePage(
-        quickPick,
-        moods,
-        albums,
-        todaysHits,
-        playLists,
-        user,
-        personalized
-      )
+    await render(
+      () =>
+        HomePage(
+          quickPick,
+          moods,
+          albums,
+          todaysHits,
+          playLists,
+          user,
+          personalized
+        ),
+      null,
+      1000
     );
   },
 
   "/explore": async () => {
-    loading.show();
     const [albums, moodsGenres, videos] = await Promise.all([
       AppService.Explore.getAlbums(),
       AppService.Explore.getMoodsGenres(),
       AppService.Explore.getVideos(),
     ]);
 
-    await render(() => ExplorePage(albums, moodsGenres, videos));
+    await render(() => ExplorePage(albums, moodsGenres, videos), null, 1000);
   },
 
   "/library": () => render(LibraryPage),
@@ -119,7 +125,6 @@ router.on({
   },
 
   "/charts": async () => {
-    loading.show();
     const [countries, topVideos, topArtists] = await Promise.all([
       AppService.Explore.getCountries(),
       AppService.Explore.getTopVideos("GLOBAL"),
@@ -153,7 +158,6 @@ router.on({
   },
 
   "/lines/:slug": async ({ data }) => {
-    loading.show();
     const [songs, playlists, videos, albums] = await Promise.all([
       AppService.Lines.getLineSongs(data.slug),
       AppService.Lines.getLinePlaylists(data.slug),
@@ -167,33 +171,27 @@ router.on({
   "/playlists/details/:slug": async ({ data }) => {
     const playlistDetails = await AppService.Details.getPlaylist(data.slug);
     RecordPlayEvent("playlist", playlistDetails.id);
-    await render(() => AlbumPlaylistPage(playlistDetails));
+    await render(() => AlbumPlaylistPage(playlistDetails), null, 500);
   },
 
   "/albums/details/:slug": async ({ data }) => {
     const albums = await AppService.Details.getAlbum(data.slug);
-
     RecordPlayEvent("album", albums.id);
-    await render(() => AlbumPlaylistPage(albums));
+    await render(() => AlbumPlaylistPage(albums), null, 500);
   },
 
   "/songs/details/:id": async ({ data }) => {
-    loading.show();
+    videoPlayer.destroy();
     const songDetails = await AppService.Details.getSong(data.id);
     RecordPlayEvent("song", data.id);
-    await render(() => SongDetailPage(songDetails, data));
-    await player.playSongFromDetail(data.id);
-    loading.hide();
+    await render(() => SongDetailPage(songDetails, data), null, 500);
+    await songPlayer.playSongFromDetail(data.id);
   },
 
   "/videos/details/:id": async ({ data }) => {
-    loading.show();
-    player.pauseSong();
-    document.querySelector("#player-wrapper")?.classList.add("hidden");
+    songPlayer.destroy();
     const videoDetails = await AppService.Details.getVideo(data.id);
-    await render(() => VideoDetailPage(videoDetails, data));
-    playerVideo.playVideoFromDetail(data.id);
-    loading.hide();
+    await render(() => VideoDetailPage(videoDetails, data), null, 500);
   },
 
   "/auth/logout": async () => await logoutHandle(),

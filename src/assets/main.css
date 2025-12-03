@@ -7,9 +7,9 @@ body {
 /* Sidebar */
 .sidebar-item {
   @apply flex gap-5 px-3 py-3 rounded-md 
-           text-base font-medium text-white/90
+          font-medium text-white/90
            hover:bg-white/15 hover:text-white
-           transition-all cursor-pointer;
+           transition cursor-pointer;
 }
 
 .sidebar-active {
@@ -34,8 +34,14 @@ body {
 #player-repeat-btn.active,
 #player-shuffle-btn-mb.active,
 #player-repeat-btn-mb.active,
+#video-player-shuffle-btn.active,
+#video-player-repeat-btn.active,
+#video-player-shuffle-btn-mb.active,
+#video-player-repeat-btn-mb.active,
 #exp-shuffle-btn.active,
-#exp-repeat-btn.active {
+#exp-repeat-btn.active,
+#video-exp-shuffle-btn.active,
+#video-exp-repeat-btn.active {
   @apply text-[#00bcd4];
 }
 

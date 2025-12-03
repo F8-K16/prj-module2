@@ -2,8 +2,7 @@ import { formatDuration } from "../utils/formatDuration";
 
 export default function VideoListPlayer(videos = []) {
   return `
-    <div class="flex flex-col gap-2">
-
+    <div  class="flex flex-col gap-2">
       ${videos
         .map(
           (v, index) => `
@@ -27,7 +26,7 @@ export default function VideoListPlayer(videos = []) {
               <div class="font-semibold">${v.title}</div>
             </div>
 
-            <div class="text-sm text-white/50">${formatDuration(
+            <div class="hidden 2xl:block text-sm text-white/50">${formatDuration(
               v.duration
             )}</div>
 

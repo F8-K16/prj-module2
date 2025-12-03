@@ -42,9 +42,20 @@ export default function Sidebar() {
                 Thư viện
               </span>
             </a>
+
+            <a
+              id="sidebar-upgrade"
+              href="#!"
+              class="flex flex-col items-center justify-center gap-1 p-3
+                    hover:bg-white/10 rounded-xl transition group"
+            >
+              <i class="fa-solid fa-crown text-2xl"></i>
+              <span class="text-[11px] text-gray-300 group-hover:text-white">
+                Nâng cấp
+              </span>
+            </a>
           
             <div id="sidebar-login">
-              
                   <hr class="my-3 w-full border-white/20 " />
                   <a
                     href="/login"
@@ -84,7 +95,8 @@ export default function Sidebar() {
             <a href="/" data-navigo class="sidebar-item"><i class="fa-regular fa-house text-xl"></i><span>Trang chủ</span></a>
             <a href="/explore" data-navigo class="sidebar-item"><i class="fa-regular fa-compass text-xl"></i><span>Khám phá</span></a>
             <a href="/library" data-navigo class="sidebar-item"><i class="fa-regular fa-bookmark text-xl"></i><span>Thư viện</span></a>
-            <button class="flex sm:hidden sidebar-item">
+            <a id="slider-sidebar-upgrade" href="#!" class="sidebar-item"><i class="fa-solid fa-crown text-xl"></i><span>Nâng cấp</span></a>
+            <button class="flex sm:hidden gap-5 px-3 py-3 rounded-md font-medium text-white/90 hover:bg-white/15 hover:text-white transition cursor-pointer">
               <i class="fa-brands fa-chromecast text-2xl text-gray-300"></i>
               <span>Chỉnh phát nhạc</span>
             </button>
