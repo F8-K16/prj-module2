@@ -64,7 +64,7 @@ export default function VideoPlayerUI() {
       <!-- Right controls -->
       <div class="flex items-center gap-3 md:gap-3">
           <div class="hidden md:flex items-center relative group">
-            <button id="video-player-volume" class="video-player-act act-btn">
+            <button id="video-player-volume-btn" class="video-player-act act-btn">
                 <i class="fa-solid fa-volume-high text-lg md:text-xl"></i>
             </button>
             
@@ -93,7 +93,7 @@ export default function VideoPlayerUI() {
             
           <div id="video-mobile-right-menu" class="hidden flex absolute right-10 top-0 bg-[#2b2b2b] shadow-xl rounded-lg">
               <input id="video-player-volume-slider-mb" type="range" min="0" max="100" value="100" class="mx-2 w-28 accent-white cursor-pointer" />
-              <button id="video-player-volume-mb" class="act-btn">
+              <button id="video-player-volume-btn-mb" class="act-btn">
                   <i class="fa-solid fa-volume-high text-lg"></i>
               </button>
               <button id="video-player-repeat-btn-mb" class="act-btn">
@@ -161,11 +161,11 @@ export default function VideoPlayerUI() {
             </button>
 
              <div class="flex flex-col items-center gap-3 relative group">
-              <button id="video-exp-volume-btn" class="act-btn">
+              <button id="video-exp-volume-btn" class="act-btn relative">
                   <i class="fa-solid fa-volume-high text-xl"></i>
               </button>
 
-              <input 
+             <input 
                   id="video-exp-volume-slider"
                   type="range" 
                   min="0" 

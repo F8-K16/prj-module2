@@ -137,22 +137,9 @@ export default function SongPlayerUI() {
                 <button class="w-full py-2 px-3 text-left hover:bg-gray-700 rounded">Chi tiết bài hát</button>
             </div>
           </div>
-            <div class="flex flex-col items-center gap-3 relative group">
-              <button id="exp-volume-btn" class="act-btn">
-                  <i class="fa-solid fa-volume-high text-xl"></i>
-              </button>
-
-              <input 
-                  id="exp-volume-slider"
-                  type="range" 
-                  min="0" 
-                  max="100" 
-                  value="100"
-                  class="exp-volume-slider opacity-0 group-hover:opacity-100 transition 
-                    absolute bottom-23 -rotate-90 w-28 accent-white cursor-pointer 
-                    pointer-events-none group-hover:pointer-events-auto"
-              />
-            </div>
+            <button id="exp-repeat-btn" class="act-btn">
+              <i class="fa-solid fa-repeat text-xl"></i>
+            </button>
 
             <button id="exp-prev-btn" class="act-btn">
               <i class="fa-solid fa-backward-step text-2xl"></i>
@@ -166,13 +153,26 @@ export default function SongPlayerUI() {
               <i class="fa-solid fa-forward-step text-2xl"></i>
             </button>
 
-            <button id="exp-repeat-btn" class="act-btn">
-              <i class="fa-solid fa-repeat text-xl"></i>
-            </button>
-
             <button id="exp-shuffle-btn" class="act-btn">
                 <i class="fa-solid fa-shuffle text-xl"></i>
             </button>
+
+            <div class="flex flex-col items-center gap-3 relative group">
+              <button id="exp-volume-btn" class="act-btn">
+                  <i class="fa-solid fa-volume-high text-xl"></i>
+              </button>
+
+              <input 
+                  id="exp-volume-slider"
+                  type="range" 
+                  min="0" 
+                  max="100" 
+                  value="100"
+                  class="exp-volume-slider opacity-0 group-hover:opacity-100 transition 
+                    absolute bottom-21 -rotate-90 w-24 accent-white cursor-pointer 
+                    pointer-events-none group-hover:pointer-events-auto"
+              />
+            </div>
           </div>
 
           <!-- Progress -->

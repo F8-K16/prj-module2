@@ -266,52 +266,60 @@ class PlayerVideoController {
   setVolume(val) {
     if (!this.player || !this.isReady) return;
 
+    val = Number(val);
     this.player.setVolume(val);
-
-    const icons = document.querySelectorAll(
-      "#video-player-volume i, #video-player-volume-mb i, #video-exp-volume-btn i"
-    );
+    this.lastVolume = val > 0 ? val : this.lastVolume;
 
     const sliderList = document.querySelectorAll(
       "#video-player-volume-slider, #video-player-volume-slider-mb, #video-exp-volume-slider"
     );
-
     sliderList.forEach((s) => (s.value = val));
 
-    icons.forEach((el) => {
-      if (val === 0) el.className = "fa-solid fa-volume-xmark text-xl";
-      else if (val <= 0.5) el.className = "fa-solid fa-volume-low text-xl";
-      else el.className = "fa-solid fa-volume-high text-xl";
-    });
+    this.updateVolumeIcon(val);
   }
 
   toggleMute() {
     if (!this.player || !this.isReady) return;
 
-    const icons = document.querySelectorAll(
-      "#video-player-volume i, #video-player-volume-mb i, #video-exp-volume-btn i"
-    );
+    let volume = this.player.getVolume();
 
-    const sliders = document.querySelectorAll(
-      "#video-player-volume-slider, #video-player-volume-slider-mb, #video-exp-volume-slider"
-    );
-
-    const currentVolume = this.player.getVolume();
-
-    if (currentVolume > 0) {
-      this.lastVolume = currentVolume;
+    if (volume > 0) {
+      this.lastVolume = volume;
       this.player.setVolume(0);
+      volume = 0;
     } else {
-      this.player.setVolume(this.lastVolume || 50);
+      const restore = this.lastVolume ?? 50;
+      this.player.setVolume(restore);
+      volume = restore;
     }
+    this.updateVolumeIcon(volume);
 
-    const vol = this.player.getVolume();
-    sliders.forEach((s) => (s.value = vol));
+    document
+      .querySelectorAll(
+        "#video-player-volume-slider, #video-player-volume-slider-mb, #video-exp-volume-slider"
+      )
+      .forEach((s) => (s.value = Number(volume)));
+  }
+
+  updateVolumeIcon(vol) {
+    const icons = document.querySelectorAll(
+      "#video-player-volume-btn i, #video-player-volume-btn-mb i, #video-exp-volume-btn i"
+    );
 
     icons.forEach((icon) => {
-      if (vol === 0) icon.className = "fa-solid fa-volume-xmark text-xl";
-      else if (vol <= 50) icon.className = "fa-solid fa-volume-low text-xl";
-      else icon.className = "fa-solid fa-volume-high text-xl";
+      icon.classList.remove(
+        "fa-volume-high",
+        "fa-volume-low",
+        "fa-volume-xmark"
+      );
+
+      if (vol == 0) {
+        icon.classList.add("fa-solid", "fa-volume-xmark");
+      } else if (vol <= 50) {
+        icon.classList.add("fa-solid", "fa-volume-low");
+      } else {
+        icon.classList.add("fa-solid", "fa-volume-high");
+      }
     });
   }
 
