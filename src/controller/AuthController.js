@@ -107,10 +107,8 @@ export async function logoutHandle() {
 
   try {
     loading.show();
-    await AppService.Auth.logout(token);
-    localStorage.removeItem("token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("user");
+    await AppService.Auth.logout();
+    localStorage.clear();
     UI.loadNavbarUser();
     UI.loadSidebarUser();
     router.navigate("/login");

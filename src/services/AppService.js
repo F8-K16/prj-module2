@@ -5,13 +5,8 @@ const AppService = {
    * HOME PAGE API
    * ========================== */
   Home: {
-    async getPersonalized(token) {
-      const res = await httpsRequest.get("/home/personalized?limit=12", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
+    async getPersonalized() {
+      const res = await httpsRequest.get("/home/personalized?limit=12");
       return res.data;
     },
 
@@ -192,21 +187,13 @@ const AppService = {
       return res.data;
     },
 
-    async getProfile(token) {
-      const res = await httpsRequest.get("/auth/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    async getProfile() {
+      const res = await httpsRequest.get("/auth/me");
       return res.data;
     },
 
-    async logout(token) {
-      return httpsRequest.delete("/auth/logout", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    async logout() {
+      return httpsRequest.delete("/auth/logout");
     },
 
     async updateProfile(data) {

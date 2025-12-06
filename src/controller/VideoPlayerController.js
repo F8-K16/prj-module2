@@ -223,15 +223,7 @@ class PlayerVideoController {
 
   nextVideo() {
     if (!this.videos.length) return;
-    if (this.isRepeat) {
-      this.play(this.currentVideo);
-      return;
-    }
 
-    if (this.isShuffle) {
-      this.playRandomVideo();
-      return;
-    }
     if (this.isShuffle) return this.playRandomVideo();
     this.currentIndex = (this.currentIndex + 1) % this.videos.length;
     this.play(this.videos[this.currentIndex]);
@@ -239,15 +231,7 @@ class PlayerVideoController {
 
   prevVideo() {
     if (!this.videos.length) return;
-    if (this.isRepeat) {
-      this.play(this.currentVideo);
-      return;
-    }
 
-    if (this.isShuffle) {
-      this.playRandomVideo();
-      return;
-    }
     this.currentIndex =
       (this.currentIndex - 1 + this.videos.length) % this.videos.length;
     this.play(this.videos[this.currentIndex]);

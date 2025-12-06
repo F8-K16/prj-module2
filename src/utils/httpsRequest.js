@@ -1,4 +1,7 @@
 import axios from "axios";
+
+import router from "../router/router";
+import { UI } from "../controller/UIController";
 import { Toast } from "../components/Toast";
 
 const baseURL = import.meta.env.VITE_BASE_URL;
@@ -38,10 +41,13 @@ httpsRequest.interceptors.response.use(
       originalRequest._retry = true;
 
       const refreshToken = localStorage.getItem("refresh_token");
+
       if (!refreshToken) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("refresh_token");
-        localStorage.removeItem("user");
+        localStorage.clear();
+        UI.loadNavbarUser();
+        UI.loadSidebarUser();
+        Toast.error("Vui lòng đăng nhập.");
+        router.navigate("/login");
         return Promise.reject(error);
       }
 
@@ -65,22 +71,18 @@ httpsRequest.interceptors.response.use(
 
         localStorage.setItem("token", access_token);
         localStorage.setItem("refresh_token", refresh_token);
-
-        httpsRequest.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${access_token}`;
-
         processQueue(null, access_token);
+
+        originalRequest.headers.Authorization = `Bearer ${access_token}`;
 
         return httpsRequest(originalRequest);
       } catch (err) {
         processQueue(err, null);
-        localStorage.removeItem("token");
-        localStorage.removeItem("refresh_token");
-        localStorage.removeItem("user");
-
-        window.location.href = "/login";
-        Toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        localStorage.clear();
+        UI.loadNavbarUser();
+        UI.loadSidebarUser();
+        Toast.error("Phiên đăng nhập đã hết hạn.");
+        router.navigate("/login");
 
         return Promise.reject(err);
       } finally {

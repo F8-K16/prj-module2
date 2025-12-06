@@ -16,7 +16,7 @@ export const Toast = {
 
     container.appendChild(toast);
 
-    setTimeout(() => toast.remove(), 3200);
+    setTimeout(() => toast.remove(), 3000);
   },
 
   success(msg) {

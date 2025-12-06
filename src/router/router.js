@@ -29,10 +29,11 @@ import {
 
 import { RecordPlayEvent } from "../utils/RecordPlayEvent";
 import { loading } from "../utils/loading";
+import SearchResultsPage from "../pages/SearchResultsPage";
 
 const router = new Navigo("/");
 
-async function render(page, controller, minLoadingTime = 200) {
+export async function render(page, controller, minLoadingTime = 200) {
   const startTime = Date.now();
   loading.show();
   await new Promise((resolve) => setTimeout(resolve, 0));
@@ -60,28 +61,41 @@ async function render(page, controller, minLoadingTime = 200) {
   }
 }
 
+function isLoggedIn() {
+  return !!localStorage.getItem("token");
+}
+
+async function requireProfile() {
+  try {
+    const user = await AppService.Auth.getProfile();
+    return user;
+  } catch (error) {
+    return null;
+  }
+}
+
 // -------------------------------------------------------------------------
 
 router.on({
   "/": async () => {
-    const token = localStorage.getItem("token");
-    const [
-      quickPick,
-      moods,
-      albums,
-      todaysHits,
-      playLists,
-      user,
-      personalized,
-    ] = await Promise.all([
-      AppService.Home.getQuickPicks(),
-      AppService.Home.getMoods(),
-      AppService.Home.getAlbumsForYou(),
-      AppService.Home.getTodaysHits(),
-      AppService.Home.getPlaylistsByCountry("VN"),
-      token ? AppService.Auth.getProfile(token) : null,
-      token ? AppService.Home.getPersonalized(token) : [],
-    ]);
+    let user = null;
+    let personalized = [];
+
+    if (isLoggedIn()) {
+      try {
+        user = await AppService.Auth.getProfile();
+        personalized = await AppService.Home.getPersonalized();
+      } catch (error) {}
+    }
+    const [quickPick, moods, albums, todaysHits, playLists] = await Promise.all(
+      [
+        AppService.Home.getQuickPicks(),
+        AppService.Home.getMoods(),
+        AppService.Home.getAlbumsForYou(),
+        AppService.Home.getTodaysHits(),
+        AppService.Home.getPlaylistsByCountry("VN"),
+      ]
+    );
     await render(
       () =>
         HomePage(
@@ -108,7 +122,11 @@ router.on({
     await render(() => ExplorePage(albums, moodsGenres, videos), null, 1000);
   },
 
-  "/library": () => render(LibraryPage),
+  "/library": async () => {
+    const user = await requireProfile();
+    if (!user) return;
+    await render(LibraryPage);
+  },
 
   "/login": async () => {
     await render(LoginPage);
@@ -194,14 +212,34 @@ router.on({
     await render(() => VideoDetailPage(videoDetails, data), null, 500);
   },
 
+  "/search": async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const keyword =
+      new URLSearchParams(window.location.search).get("keyword") || "";
+
+    if (!keyword) {
+      await render(() => SearchResultsPage("", null));
+      return;
+    }
+
+    const data = await AppService.Search.search(keyword);
+    await render(() => SearchResultsPage(keyword, data));
+  },
+
   "/auth/logout": async () => await logoutHandle(),
 
   "/auth/profile": async () => {
-    const user = await AppService.Auth.getProfile();
+    const user = await requireProfile();
+    if (!user) return;
+
     await render(() => ProfilePage(user), updateProfileHandle);
   },
 
   "/auth/change-password": async () => {
+    const user = await requireProfile();
+    if (!user) return;
+
     await render(ChangePasswordPage, changePasswordHandle);
   },
 });

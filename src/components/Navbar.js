@@ -14,13 +14,20 @@ export default function Navbar() {
       </div>
 
       <div class='flex grow items-center justify-end gap-4 md:justify-between '>
-        <div class="hidden md:flex items-center bg-[#292929]/80 backdrop-blur-sm px-4 py-1.5 lg:py-2.5 rounded w-[290px] lg:w-[470px]">
+        <div class="hidden md:flex items-center bg-[#292929]/80 backdrop-blur-sm px-4 py-1.5 lg:py-2.5 rounded w-[290px] lg:w-[470px] relative">
           <i class="fa-solid fa-magnifying-glass w-5 h-5 text-gray-300"></i>
           <input
             id="navbar-search-input"
-            placeholder="Tìm bài hát, nghệ sĩ"
+            placeholder="Tìm bài hát, đĩa nhạc, nghệ sĩ"
+            autocomplete="off"
             class="bg-transparent outline-none px-3 w-full text-md text-white placeholder-gray-400"
           />
+
+          <button
+              id="navbar-search-clear"
+              class="hidden absolute right-3 text-gray-300 hover:text-white transition">
+              <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
           <div id="search-dropdown" class="absolute left-0 right-0 top-full bg-[#121212] text-white rounded-lg shadow-lg mt-1 hidden z-9999"></div>
         </div>
         

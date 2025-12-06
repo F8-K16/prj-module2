@@ -9,6 +9,7 @@ class SearchController {
     this.mobileInput = null;
     this.mobileModal = null;
     this.mobileResults = null;
+    this.lastData = null;
   }
 
   init() {
@@ -17,12 +18,34 @@ class SearchController {
     this.mobileInput = document.querySelector("#mobile-search-input");
     this.mobileModal = document.querySelector("#mobile-search-modal");
     this.mobileResults = document.querySelector("#search-modal-results");
+    this.clearBtn = document.querySelector("#navbar-search-clear");
 
     if (this.inputEl) {
       this.inputEl.addEventListener(
         "input",
         debounce(this.handleSearch.bind(this), 350)
       );
+
+      this.inputEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          const keyword = this.inputEl.value.trim();
+          if (keyword) {
+            this.navigateSearch(keyword);
+            this.hideDropdown();
+            this.inputEl.blur();
+          }
+        }
+      });
+    }
+
+    if (this.clearBtn && this.inputEl) {
+      this.clearBtn.addEventListener("click", () => {
+        this.inputEl.value = "";
+        this.lastData = null;
+        this.hideDropdown();
+        this.clearBtn.classList.add("hidden");
+        this.inputEl.focus();
+      });
     }
 
     if (this.mobileInput) {
@@ -30,7 +53,24 @@ class SearchController {
         "input",
         debounce(this.handleMobileSearch.bind(this), 350)
       );
+
+      this.mobileInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          const keyword = this.mobileInput.value.trim();
+          if (keyword) {
+            this.navigateSearch(keyword);
+            this.closeMobileModal();
+          }
+        }
+      });
     }
+
+    this.inputEl.addEventListener("focus", () => {
+      const keyword = this.inputEl.value.trim();
+      if (keyword && this.lastData) {
+        this.renderDropdown(this.lastData);
+      }
+    });
 
     this.dropdown.addEventListener("click", (e) => {
       const item = e.target.closest("[data-action]");
@@ -61,22 +101,26 @@ class SearchController {
 
       this.navigate(item.dataset.type, item.dataset.id);
 
-      this.mobileModal.style.opacity = 0;
-      this.mobileModal.style.pointerEvents = "none";
-      this.mobileResults.innerHTML = "";
-      this.mobileInput.value = "";
+      this.closeMobileModal();
     });
   }
 
   async handleSearch(e) {
     const keyword = e.target.value.trim();
 
+    if (this.clearBtn) {
+      if (keyword.length > 0) this.clearBtn.classList.remove("hidden");
+      else this.clearBtn.classList.add("hidden");
+    }
+
     if (!keyword) {
       this.hideDropdown();
+      this.lastData = null;
       return;
     }
 
     const data = await AppService.Search.search(keyword);
+    this.lastData = data;
     this.renderDropdown(data);
   }
 
@@ -148,6 +192,30 @@ class SearchController {
     this.dropdown.classList.remove("hidden");
   }
 
+  navigateSearch(keyword) {
+    const safeKeyword = encodeURIComponent(keyword.trim());
+    requestAnimationFrame(() => {
+      router.navigate(`/search?keyword=${safeKeyword}`);
+    });
+  }
+
+  navigate(type, id) {
+    const path = this.getPath(type, id);
+    router.navigate(path);
+    if (this.inputEl) this.inputEl.value = "";
+    this.hideDropdown();
+  }
+
+  getPath(type, id) {
+    const routes = {
+      playlist: `/playlists/details/${id}`,
+      album: `/albums/details/${id}`,
+      song: `/songs/details/${id}`,
+      video: `/videos/details/${id}`,
+    };
+    return routes[type] || "/";
+  }
+
   renderMobileResults(data) {
     const { completed = [] } = data;
 
@@ -181,25 +249,15 @@ class SearchController {
     this.mobileResults.classList.remove("hidden");
   }
 
-  navigate(type, id) {
-    const path = this.getPath(type, id);
-    router.navigate(path);
-    this.hideDropdown();
-  }
-
-  getPath(type, id) {
-    const routes = {
-      playlist: `/playlists/details/${id}`,
-      album: `/albums/details/${id}`,
-      song: `/songs/details/${id}`,
-      video: `/videos/details/${id}`,
-    };
-    return routes[type] || "/";
-  }
-
   hideDropdown() {
     this.dropdown.classList.add("hidden");
     this.dropdown.innerHTML = "";
+  }
+
+  closeMobileModal() {
+    this.mobileModal.classList.add("opacity-0", "pointer-events-none");
+    this.mobileResults.innerHTML = "";
+    this.mobileInput.value = "";
   }
 }
 

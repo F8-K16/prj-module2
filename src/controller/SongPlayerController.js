@@ -106,15 +106,6 @@ class SongPlayerController {
   async nextSong() {
     if (!this.songs.length) return;
 
-    if (this.isRepeat) {
-      await this.loadSong(this.currentSong);
-      return this.playSong();
-    }
-
-    if (this.isShuffle) {
-      return this.playRandomSong();
-    }
-
     this.currentIndex = (this.currentIndex + 1) % this.songs.length;
     const nextTrack = this.songs[this.currentIndex];
 
@@ -124,15 +115,6 @@ class SongPlayerController {
 
   async prevSong() {
     if (!this.songs.length) return;
-
-    if (this.isRepeat) {
-      await this.loadSong(this.currentSong);
-      return this.playSong();
-    }
-
-    if (this.isShuffle) {
-      return this.playRandomSong();
-    }
 
     this.currentIndex =
       (this.currentIndex - 1 + this.songs.length) % this.songs.length;

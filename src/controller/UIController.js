@@ -115,6 +115,8 @@ class UIController {
 
     openBtn.addEventListener("click", (e) => {
       e.stopPropagation();
+      console.log("search được nhấn");
+
       this.openSearch();
     });
 
