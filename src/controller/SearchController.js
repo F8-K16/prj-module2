@@ -19,6 +19,7 @@ class SearchController {
     this.mobileModal = document.querySelector("#mobile-search-modal");
     this.mobileResults = document.querySelector("#search-modal-results");
     this.clearBtn = document.querySelector("#navbar-search-clear");
+    this.mobileClearBtn = document.querySelector("#mobile-search-clear");
 
     if (this.inputEl) {
       this.inputEl.addEventListener(
@@ -45,6 +46,15 @@ class SearchController {
         this.hideDropdown();
         this.clearBtn.classList.add("hidden");
         this.inputEl.focus();
+      });
+    }
+
+    if (this.mobileClearBtn && this.mobileInput) {
+      this.mobileClearBtn.addEventListener("click", () => {
+        this.mobileInput.value = "";
+        this.mobileResults.innerHTML = "";
+        this.mobileClearBtn.classList.add("hidden");
+        this.mobileInput.focus();
       });
     }
 
@@ -126,6 +136,11 @@ class SearchController {
 
   async handleMobileSearch(e) {
     const keyword = e.target.value.trim();
+
+    if (this.mobileClearBtn) {
+      if (keyword.length > 0) this.mobileClearBtn.classList.remove("hidden");
+      else this.mobileClearBtn.classList.add("hidden");
+    }
 
     if (!keyword) {
       this.mobileResults.innerHTML = "";

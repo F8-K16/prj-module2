@@ -58,11 +58,16 @@ export default function Navbar() {
           </button>
             <input
               id="mobile-search-input"
-              placeholder="Tìm bài hát, nghệ sĩ"
+              placeholder="Tìm bài hát, đĩa nhạc, nghệ sĩ"
               class="bg-transparent outline-none w-full text-sm text-white placeholder-gray-400"
               autofocus
               autocomplete="off"
             />
+            <button
+              id="mobile-search-clear"
+              class="hidden flex text-gray-300 hover:text-white transition">
+              <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
         </div>
         <div id="search-modal-results" class="mt-3"></div>
       </div>

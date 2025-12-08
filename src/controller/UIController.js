@@ -115,8 +115,6 @@ class UIController {
 
     openBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      console.log("search được nhấn");
-
       this.openSearch();
     });
 
@@ -214,19 +212,8 @@ class UIController {
     const loginForm = document.querySelector("#login-form");
     const registerForm = document.querySelector("#register-form");
 
-    const params = new URLSearchParams(window.location.search);
-    const show = params.get("show");
-
     loginForm.classList.add("hidden-form");
     registerForm.classList.add("hidden-form");
-
-    if (show === "login") {
-      loginForm.classList.replace("hidden-form", "active-form");
-    } else if (show === "register") {
-      registerForm.classList.replace("hidden-form", "active-form");
-    } else {
-      loginForm.classList.replace("hidden-form", "active-form");
-    }
 
     document.getElementById("go-register").addEventListener("click", () => {
       loginForm.classList.replace("active-form", "hidden-form");

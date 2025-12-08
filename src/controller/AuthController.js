@@ -46,7 +46,7 @@ export async function registerHandle(e) {
     saveAuthData(data);
 
     Toast.success("Đăng ký thành công!");
-    router.navigate("/login?show=login");
+    router.navigate("/");
   } catch (error) {
     const backend = error.response.data;
     if (backend.message === "Email already in use") {
